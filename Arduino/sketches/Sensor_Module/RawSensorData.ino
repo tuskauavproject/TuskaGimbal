@@ -1,7 +1,7 @@
 // UNCOMMENT ONE OF THE TWO OPTIONS BELOW
 
 //#define PRINTDATA // uncomment to display raw data over serial port in format [gX     gY     gZ      aX      aY      aZ]
-//#define SAMPLERATE // uncomment to display sampling rate over serial port updates every 2 seconds with sampleing rate in Hz
+#define SAMPLERATE // uncomment to display sampling rate over serial port updates every 2 seconds with sampleing rate in Hz
 
 #include <avr/eeprom.h>
 // some of these variables probably are not useful eventually we should try and remove them.
@@ -14,10 +14,6 @@ static int16_t lookupPitchRollRC[6];// lookup table for expo & RC rate PITCH+ROL
 static int16_t lookupThrottleRC[11];// lookup table for expo & mid THROTTLE
 static int16_t  acc_25deg;
 
-#if defined(SAMPLERATE)
-		long ptime = 0;
-		int count = 0;
-#endif
 
 // ************************************************************************************************************
 // Main Program
@@ -61,14 +57,18 @@ void printRawData() //prints raw data over serial port in format "[gX     gY    
 	Serial.println("]");
 }
 
-void printSampleRate() //takes number of samples over approx 2 sec. and prints out the sampling rate in Hz to serial port.
-{
-	count++;
-	if((millis() - ptime) >= 2000 ){
-		Serial.print("Sampling Rate:");
-		Serial.print((float)count/((millis() - ptime)/ (float)1000));
-		Serial.println("Hz");
-		ptime = millis();
-		count = 0;
+#if defined(SAMPLERATE)
+		long ptime = 0;
+		int count = 0;
+	void printSampleRate() //takes number of samples over approx 2 sec. and prints out the sampling rate in Hz to serial port.
+	{
+		count++;
+		if((millis() - ptime) >= 2000 ){
+			Serial.print("Sampling Rate:");
+			Serial.print((float)count/((millis() - ptime)/ (float)1000));
+			Serial.println("Hz");
+			ptime = millis();
+			count = 0;
+		}
 	}
-}
+#endif
