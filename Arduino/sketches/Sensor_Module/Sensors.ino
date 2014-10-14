@@ -1,38 +1,16 @@
-/*#include <avr/eeprom.h>
-// to define in main program setup
-static uint16_t calibratingG;
-static int16_t  gyroADC[3],accADC[3],accSmooth[3],magADC[3];
-static int16_t gyroZero[3] = {0,0,0};
-static uint16_t acc_1G;             // this is the 1G measured acceleration
-static uint16_t calibratingA = 0;  // the calibration is done in the main loop. Calibrating decreases at each cycle down to 0, then we enter in a normal mode.
-static int16_t lookupPitchRollRC[6];// lookup table for expo & RC rate PITCH+ROLL
-static int16_t lookupThrottleRC[11];// lookup table for expo & mid THROTTLE
-static int16_t  acc_25deg;
-*/
-#define MINTHROTTLE 1150
-#define MAXTHROTTLE 1850
+// Sensor.ino
+
 #define GYRO 1
 #define ACC 1
 
 #define ROLL       0
 #define PITCH      1
 #define YAW        2
-#define PIDITEMS 10
 
 static struct {
   uint8_t checkNewConf;
-  uint8_t P8[PIDITEMS], I8[PIDITEMS], D8[PIDITEMS];
-  uint8_t rcRate8;
-  uint8_t rcExpo8;
-  uint8_t rollPitchRate;
-  uint8_t yawRate;
-  uint8_t dynThrPID;
-  uint8_t thrMid8;
-  uint8_t thrExpo8;
   int16_t accZero[3];
-  int16_t magZero[3];
   int16_t angleTrim[2];
-  uint8_t powerTrigger1;
   #if defined(GYRO_SMOOTHING)
     uint8_t Smoothing[3];
   #endif
@@ -336,25 +314,8 @@ void ACC_Common() {
 void writeParams(uint8_t b) {
   conf.checkNewConf = EEPROM_CONF_VERSION; // make sure we write the current version into eeprom
   eeprom_write_block((const void*)&conf, (void*)0, sizeof(conf));
-  readEEPROM();
+  //readEEPROM();
   //if (b == 1) blinkLED(15,20,1);
-}
-
-void readEEPROM() {
-  uint8_t i;
-
-  eeprom_read_block((void*)&conf, (void*)0, sizeof(conf));
-  for(i=0;i<6;i++) {
-    lookupPitchRollRC[i] = (2500+conf.rcExpo8*(i*i-25))*i*(int32_t)conf.rcRate8/2500;
-  }
-  for(i=0;i<11;i++) {
-    int16_t tmp = 10*i-conf.thrMid8;
-    uint8_t y = 1;
-    if (tmp>0) y = 100-conf.thrMid8;
-    if (tmp<0) y = conf.thrMid8;
-    lookupThrottleRC[i] = 10*conf.thrMid8 + tmp*( 100-conf.thrExpo8+(int32_t)conf.thrExpo8*(tmp*tmp)/(y*y) )/10; // [0;1000]
-    lookupThrottleRC[i] = MINTHROTTLE + (int32_t)(MAXTHROTTLE-MINTHROTTLE)* lookupThrottleRC[i]/1000;            // [0;1000] -> [MINTHROTTLE;MAXTHROTTLE]
-  }
 }
 // ************************************************************************************************************
 
@@ -396,8 +357,6 @@ void ACC_getADC () {
 }
 
 // ************************************************************************************************************
-
-
 void initSensors() {
   delay(200);
   delay(100);
