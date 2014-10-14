@@ -1,0 +1,391 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"rc",
+				"rcCommand"
+			],
+			[
+				"Y",
+				"YAW"
+			],
+			[
+				"AUX",
+				"AUX1"
+			],
+			[
+				"pid",
+				"myPID_ROLL"
+			],
+			[
+				"fir",
+				"first"
+			],
+			[
+				"out",
+				"output"
+			],
+			[
+				"in",
+				"include"
+			],
+			[
+				"led",
+				"ledpwm"
+			],
+			[
+				"by",
+				"byte	Arduino byte()"
+			],
+			[
+				"print",
+				"println"
+			],
+			[
+				"anal",
+				"analogWrite	Arduino analogWrite"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "Arduino/sketches/MULTIWII_MODIFIED/config.h",
+			"settings":
+			{
+				"buffer_size": 53614,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "Arduino/sketches/MULTIWII_MODIFIED/MultiWii_2_1.ino",
+			"settings":
+			{
+				"buffer_size": 35185,
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "",
+	"command_palette":
+	{
+		"height": 47.0,
+		"selected_items":
+		[
+			[
+				"Package Control: li",
+				"Package Control: List Packages"
+			],
+			[
+				"Package Control: ",
+				"Package Control: Enable Package"
+			],
+			[
+				"Package Control: i",
+				"Package Control: Install Package"
+			],
+			[
+				"Package Control: in",
+				"Package Control: Install Package"
+			],
+			[
+				"Package Control: I",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 449.0
+	},
+	"console":
+	{
+		"height": 125.0
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/Users/alexlarson/gimbal_system/MultiWii_2_1/MULTIWII_MODIFIED/config.h",
+		"/Users/alexlarson/gimbal_system/MultiWii_2_1/MULTIWII_MODIFIED/Output.ino",
+		"/Users/alexlarson/gimbal_system/MultiWii_2_1/MULTIWII_MODIFIED/RX.ino",
+		"/Users/alexlarson/gimbal_system/MultiWii_2_1/MULTIWII_MODIFIED/MultiWii_2_1.ino",
+		"/Users/alexlarson/Documents/Tuska/GITHUB/TUSKA_GIMBAL/TUSKA_GIMBAL_WORKING_COPY/Arduino/sketches/MULTIWII_MODIFIED/MultiWii_2_1.ino",
+		"/Users/alexlarson/gimbal_system/MultiWii_2_1/MULTIWII_MODIFIED/CUSTOM/EEPROM.ino",
+		"/Users/alexlarson/gimbal_system/MultiWii_2_1/MULTIWII_MODIFIED/CUSTOM/def.h",
+		"/Users/alexlarson/gimbal_system/MultiWii_2_1/MULTIWII_MODIFIED/CUSTOM/Output.ino",
+		"/Users/alexlarson/gimbal_system/MultiWii_2_1/MULTIWII_MODIFIED/CUSTOM/Serial.ino",
+		"/Users/alexlarson/gimbal_system/MultiWii_2_1/MULTIWII_MODIFIED/CUSTOM/config.h",
+		"/Users/alexlarson/gimbal_system/MultiWii_2_1/MULTIWII_MODIFIED/CUSTOM/MultiWii_2_1.ino",
+		"/Users/alexlarson/gimbal_system/MultiWii_2_1/MULTIWII_MODIFIED/Serial.ino",
+		"/Users/alexlarson/gimbal_system/MultiWii_2_1/MULTIWII_MODIFIED/LCD.ino",
+		"/Users/alexlarson/gimbal_system/MultiWii_2_1/MultiWii_2_1/config.h",
+		"/Users/alexlarson/gimbal_system/MultiWii_2_1/MultiWii_2_1/MultiWii_2_1.ino",
+		"/Users/alexlarson/gimbal_system/Arduino/sketches/gimbal_2/gimbal2.ino",
+		"/Users/alexlarson/gimbal_system/Arduino/sketches/reciever_read/reciever_read.ino",
+		"/Users/alexlarson/gimbal_system/Arduino/sketches/mpu6050_dmp/mpu6050_dmp.ino",
+		"/Users/alexlarson/gimbal_system/Arduino/libraries/MPU6050/MPU6050_6Axis_MotionApps20.h",
+		"/Users/alexlarson/Downloads/mpu_6050_i2cdevlib 2/mpu_6050_i2cdevlib.ino",
+		"/Users/alexlarson/gimbal_system/Arduino/sketches/mpu6050_dmp/gimbal2.ino",
+		"/Users/alexlarson/gimbal_system/Arduino/sketches/gimbal_firmware/MPU6050_raw.ino",
+		"/Users/alexlarson/gimbal_system/Arduino/sketches/gimbal_firmware/reciever_read.ino",
+		"/Users/alexlarson/Desktop/testing.ino",
+		"/Users/alexlarson/Documents/Tuska/camera_systems/gimbal_system/Arduino/sketches/gimbal_firmware/MPU6050_raw.ino",
+		"/Users/alexlarson/Documents/Tuska/camera_systems/gimbal_system/Arduino/sketches/gimbal_firmware/reciever_read.ino",
+		"/Users/alexlarson/Documents/Arduino/libraries/FreeIMU/examples/FreeIMU_serial/FreeIMU_serial.ino",
+		"/Users/alexlarson/Documents/Arduino/libraries/MPU6050/Examples/MPU6050_raw/MPU6050_raw.ino",
+		"/Users/alexlarson/Documents/Arduino/libraries/MPU6050/MPU6050_6Axis_MotionApps20.h",
+		"/Users/alexlarson/Library/Application Support/Sublime Text 2/Packages/Arduino-like IDE/stino.global_settings"
+	],
+	"find":
+	{
+		"height": 35.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"mask",
+			"fail",
+			"failsafe",
+			"failsafeevent",
+			"failsafe",
+			"gimbal",
+			"failsafe",
+			"throttle",
+			"gimbal",
+			"rcData",
+			"rcCommand",
+			"GIMBAL",
+			"rcCommand[PITCH]",
+			"mix",
+			"POSHOLD_P",
+			"poshold_p",
+			"gps_angle",
+			"servo",
+			"SERVO_RFR_300HZ",
+			"SERVO",
+			"PowerMeterSum",
+			"intPowerMeterSum",
+			"POWERPIN_PINMODE",
+			"vbat",
+			"bat",
+			"eva",
+			"eval",
+			"evalu",
+			"servo1.write",
+			"fifo",
+			"pid",
+			"outpu",
+			"servo",
+			"pid",
+			"serv",
+			"geek"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 1,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "Arduino/sketches/MULTIWII_MODIFIED/config.h",
+					"settings":
+					{
+						"buffer_size": 53614,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								8498,
+								8498
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C++/C++.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 2675.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "Arduino/sketches/MULTIWII_MODIFIED/MultiWii_2_1.ino",
+					"settings":
+					{
+						"buffer_size": 35185,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1,
+								1
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Arduino-like IDE/Arduino.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 0.0
+	},
+	"input":
+	{
+		"height": 31.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.":
+	{
+		"height": 100.0
+	},
+	"output.Arduimu":
+	{
+		"height": 316.0
+	},
+	"output.CUSTOM":
+	{
+		"height": 100.0
+	},
+	"output.Desktop":
+	{
+		"height": 100.0
+	},
+	"output.FreeIMU_serial":
+	{
+		"height": 432.0
+	},
+	"output.MULTIWII_MODIFIED":
+	{
+		"height": 100.0
+	},
+	"output.MultiWii_2_1":
+	{
+		"height": 100.0
+	},
+	"output.gimbal_2":
+	{
+		"height": 100.0
+	},
+	"output.gimbal_firmware":
+	{
+		"height": 25.0
+	},
+	"output.mpu6050":
+	{
+		"height": 100.0
+	},
+	"output.mpu6050_dmp":
+	{
+		"height": 178.0
+	},
+	"output.mpu_6050_i2cdevlib 2":
+	{
+		"height": 137.0
+	},
+	"output.reciever_read":
+	{
+		"height": 265.0
+	},
+	"output.stino_log":
+	{
+		"height": 100.0
+	},
+	"replace":
+	{
+		"height": 0.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 315.0,
+	"status_bar_visible": true
+}
