@@ -1,6 +1,6 @@
 // UNCOMMENT ONE OF THE FOUR OPTIONS BELOW
 
-//#define PRINTDATA // uncomment to display raw data over serial port in format [gX     gY     gZ      aX      aY      aZ]
+#define PRINTDATA // uncomment to display raw data over serial port in format [gX     gY     gZ      aX      aY      aZ]
 //#define PRINTANGLE // identical to PRINTDATA but gyro data is in delta degrees [gX     gY     gZ      aX      aY      aZ]
 //#define PRINTANGLESUM // uncomment to display simple intigration of gyro over X axis in degrees
 //#define SAMPLERATE // uncomment to display max sampling rate over serial port updates every 2 seconds with sampleing rate in Hz
@@ -59,8 +59,6 @@ void loop()
    	#if defined(PRINTANGLE)
     	printAngleData(deltaGyroAngle);
     #endif
-
-    	delayMicroseconds(650); // emperical delay between readings 
 
 	#endif
 	#if defined(PRINTDATA) 
