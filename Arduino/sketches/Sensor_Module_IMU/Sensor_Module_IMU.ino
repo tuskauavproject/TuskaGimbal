@@ -3,7 +3,7 @@
 #include "Adafruit_SSD1306.h" //libray required for I2C display
 
 #include <SPI.h>             //libray required for I2C display
-#include "includes/tuskalogo.h"        //holds binary bitmap for tuska logo
+#include "tuskalogo.h"        //holds binary bitmap for tuska logo
 
 #define OLED_RESET 4                  // for i2c display
 Adafruit_SSD1306 display(OLED_RESET); //display class for I2C display
