@@ -31,9 +31,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <includes/Adafruit_GFX.h>
-#include <includes/Adafruit_SSD1306.h>
-#include <glcdfont.c>
+#include "Adafruit_GFX.h"
+#include "glcdfont.c"
 #ifdef __AVR__
  #include <avr/pgmspace.h>
 #else

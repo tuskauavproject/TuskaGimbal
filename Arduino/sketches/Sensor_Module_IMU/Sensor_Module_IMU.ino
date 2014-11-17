@@ -3,7 +3,8 @@
 #include "Adafruit_SSD1306.h" //libray required for I2C display
 
 #include <SPI.h>             //libray required for I2C display
-#include "includes/tuskalogo.h"        //holds binary bitmap for tuska logo
+#include "tuskalogo.h"
+        //holds binary bitmap for tuska logo
 
 #define OLED_RESET 4                  // for i2c display
 Adafruit_SSD1306 display(OLED_RESET); //display class for I2C display
@@ -33,14 +34,14 @@ long prevTime = 0;
 
 byte axis = 0;                        // used in for loops for array index 
 
-
 #define PI 3.14159265         // approx of Pi which program uses.
 #define dt 10000              // dt in micros seconds
-#define GYROSCALE ((2380 * PI)/((32767.0f / 4.0f ) * 180.0f * 1000000.0f)) * 0.85 // A constant which converts raw data units to radians, determined experimentally
+#define GYROSCALE ((2380 * PI)/((32767.0f / 4.0f ) * 180.0f * 1000000.0f)) * 1 // A constant which converts raw data units to radians, determined experimentally
 #define RADTODEG  57.2957795  //constant for converting radians to degrees
 //#define ACC_LPF_FACTOR 50   //magnitude of Acc data lowpass, filtering increases Acc lag
-#define GYROWEIGHT 0.99       // weight of gyro in complementart filter, out of 1  
+#define GYROWEIGHT 0.90       // weight of gyro in complementart filter, out of 1  
 #define SCREENREFRESH 60      // screen refresh rate in Hz, increasing too much will lag IMU
+#define ACC_LPF_FACTOR 10
 static float *pitch, *roll;
 
 // ************************************************************************************************************
@@ -51,6 +52,8 @@ void setup()
   initSensors();        //initilizes sensors for sepecifics see Sensors.ino
   delay(100);
   Serial.begin(115200); //initilize serial communication with 115200 baudrate
+
+  delay(100);
 
   displayInit();        //initilizes I2C display and displays logo see more detail in helper functions
 
@@ -66,7 +69,7 @@ void setup()
 	  calSum = 0;
   }
 
-  delay(1000); // so people can see sick logo ;)
+  delay(2000); // so people can see sick logo ;)
   display.clearDisplay();
   display.display();
 }
@@ -77,7 +80,8 @@ void loop()
   ACC_getADC(); // read raw accel data
 
   for(axis = 0; axis < 3; axis++)
-    accelFloat[axis]=accADC[axis]; // raw data from int array to float array also give the option to filter if necessary 
+    accLPF[axis] = accLPF[axis] * (1.0f - (1.0f/ACC_LPF_FACTOR)) + accADC[axis] * (1.0f/ACC_LPF_FACTOR);
+    //accelFloat[axis] = accLPF[axis]; // raw data from int array to float array also give the option to filter if necessary 
   
     static uint16_t previousT;
     uint16_t currentT = micros(); // set current time 
@@ -96,23 +100,35 @@ void loop()
     rollAngle -= deltaGyroAngle[1]; //riemann sum  
     
 
-    float pitchAccel = atan2(accelFloat[1],accelFloat[2]) * RADTODEG; // determine the pitch of Acc vector using atan2 function
-    float rollAccel = atan2(accelFloat[0],accelFloat[2]) * RADTODEG;  // determine the roll of Acc vector using atan2 function
+    float pitchAccel = atan2(accLPF[1],accLPF[2]) * RADTODEG; // determine the pitch of Acc vector using atan2 function
+    float rollAccel = atan2(accLPF[0],accLPF[2]) * RADTODEG;  // determine the roll of Acc vector using atan2 function
 
     accVectorMagnitude = sqrt(pow(accADC[0],2) + pow(accADC[1],2) + pow(accADC[2],2))/495.f; // calc of of Acc vector magnitude, could be simplified 
 
     if(accVectorMagnitude < 1.3 && accVectorMagnitude > 0.7) // if !bullshit Acc vector must be <1.3g && >0.7g
     {
-      pitchAngle = pitchAngle * GYROWEIGHT + pitchAccel * (1 - GYROWEIGHT); // complementary filter 
-      rollAngle = rollAngle * GYROWEIGHT + rollAccel * (1 - GYROWEIGHT);    // complementary filter 
+      if(!(abs(rollAngle) > 85))
+        pitchAngle = pitchAngle * GYROWEIGHT + pitchAccel * (1 - GYROWEIGHT); // complementary filter 
+      if(!(abs(pitchAngle) > 85))
+        rollAngle = rollAngle * GYROWEIGHT + rollAccel * (1 - GYROWEIGHT);    // complementary filter 
     }
 
     else // for debuging purposes only triggered if Acc magnitude is out of bounds
     {
-      Serial.print("THROWOUT!!!!!!!!!!!!!!!!!!!!!!!!!!");
-      Serial.print("\t\t");
+      //Serial.print("THROWOUT!!!!!!!!!!!!!!!!!!!!!!!!!!");
+      //Serial.print("\t\t");
       display.drawFastHLine(0,10,30,1);
     }
+
+    if(pitchAngle > 180)
+      pitchAngle = -180 + (pitchAngle - 180);
+    else if(pitchAngle < -180)
+      pitchAngle = 180 + (pitchAngle + 180);
+
+    if(rollAngle > 180)
+      rollAngle = -180 + (rollAngle - 180);
+    else if(rollAngle < -180)
+      rollAngle = 180 + (rollAngle + 180);
 
     serialPrintDebug(pitchAccel); //prints to Serial for debug
      
@@ -124,7 +140,6 @@ void loop()
       prevTime = micros();
     } 
     loopCount++; 
-
 }
 // ************************************************************************************************************
 // Helper Functions
@@ -203,15 +218,15 @@ if(Serial.available() > 0)
         Serial.read();
       }
 
-      Serial.print(pitchAngle);
-      Serial.print("\t\t");
-      Serial.print(deltaGyroAngle[0]);
-      Serial.print("\t\t");
-      Serial.print(pitchAccel);
-      Serial.print("\t\t");
-      Serial.print(pitchAngle);
-      Serial.print("\t\t");
-      Serial.println(rollAngle);
+      //Serial.print(pitchAngle);
+      //Serial.print("\t\t");
+      //Serial.print(deltaGyroAngle[0]);
+      //Serial.print("\t\t");
+      //Serial.print(pitchAccel);
+      //Serial.print("\t\t");
+      //Serial.print(pitchAngle);
+      //Serial.print("\t\t");
+      //Serial.println(rollAngle);
       //Serial.println(accVectorMagnitude);
-
+      //Serial.println(pitchAngle);
 }
