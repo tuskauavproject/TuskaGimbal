@@ -59,7 +59,7 @@ int8_t motorDirection = -1;
 volatile uint8_t motorUpdateTick = 0;
 volatile uint8_t motorUpdate = 0;
 volatile uint8_t motorSpeedUpdateTick = 0;
-volatile uint8_t motorSpeed = 7;
+volatile uint8_t motorSpeed = 50;
 
 void setupInterupt()
 {
@@ -89,7 +89,7 @@ void setup()
   initSensors();        //initilizes sensors for sepecifics see Sensors.ino
   delay(100);
   Serial.begin(115200); //initilize serial communication with 115200 baudrate
-  //setupInterupt();
+  setupInterupt();
   delay(100);
   calcSinArray();
 
@@ -164,7 +164,11 @@ void loop()
       rollAngle = 180 + (rollAngle + 180);
 
     serialPrintDebug(pitchAccel); //prints to Serial for debug
-     
+    if(motorUpdate == 1)
+  {
+    motorUpdate = 0;
+    runMotor(tStep);
+  } 
 }
 // ************************************************************************************************************
 // Helper Functions
@@ -243,7 +247,7 @@ if(Serial.available() > 0)
         Serial.read();
       }
 
-      //Serial.print(pitchAngle);
+      Serial.println(pitchAngle);
       //Serial.print("\t\t");
       //Serial.print(deltaGyroAngle[0]);
       //Serial.print("\t\t");
@@ -271,7 +275,7 @@ void runMotor(uint8_t Step)
   pwmA = sinArray[Step];
   pwmB = sinArray[(Step + phaseOffset1) % SIN_ARRAY_SIZE];
   pwmC = sinArray[(Step + phaseOffset2) % SIN_ARRAY_SIZE];
-  
+  controlWithImu();
 }
 
 ISR(TIMER2_COMPA_vect){//timer1 interrupt 64 kHz 
@@ -294,5 +298,13 @@ ISR(TIMER2_COMPA_vect){//timer1 interrupt 64 kHz
       tStep--;
     motorSpeedUpdateTick = 0;
   }
+}
 
+void controlWithImu()
+{
+  if(pitchAngle > 0)
+    motorDirection = -1;
+  else
+    motorDirection = 1;
+  motorSpeed = map(abs(pitchAngle),0,90,1000,100);
 }
