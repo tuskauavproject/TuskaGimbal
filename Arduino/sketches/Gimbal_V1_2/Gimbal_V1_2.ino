@@ -65,7 +65,11 @@ int8_t pwmSinMotor[256];   // size of sin lookup table to drive motors
 volatile byte motorPos0 = 0;
 volatile byte motorPos1 = 0;
 volatile byte motorPos2 = 0;
+volatile byte motorDir1 = 1;
 volatile uint8_t mainTick = 0;
+uint8_t subTick = 0;
+volatile uint8_t motorSpeed1 = 0;
+volatile uint8_t motorSpeed10 = 1;
 volatile uint16_t freqCounter0 = 0;
 volatile uint16_t freqCounter1 = 0;
 volatile uint16_t freqCounter2 = 0;
@@ -100,7 +104,7 @@ int32_t pitchPIDVal;
 int32_t rollPIDVal;
 
 
-float pitchAngleSet = 0; //Angle to hold the gimbal at in degrees
+float pitchAngleSet = -25; //Angle to hold the gimbal at in degrees
 
 //variables for PID calculations
 static int32_t pitchErrorSum = 0;
@@ -151,12 +155,26 @@ void loop()
       inc = inc * -1;
    // Serial.print(i);
     // set pitch motor pwm
-    pitchPIDVal = ComputePID(DT_INT_MS, DT_INT_INV,1000*pitchAngle, pitchAngleSet, &pitchErrorSum, &pitchErrorOld,200, 0, 0); //4.5, 1.5, 0.4
-    Serial.print(pitchAngle);
-    Serial.print("\t");
-    Serial.println(pitchPIDVal);
-    setMotorSpeed(1,abs(pitchPIDVal),250); 
+    pitchPIDVal = ComputePID(DT_INT_MS, DT_INT_INV,1000*pitchAngle,pitchAngleSet*1000, &pitchErrorSum, &pitchErrorOld,35, 20, 5); //4.5, 1.5, 0.4
+    //Serial.print(pitchAngle);
+    if (pitchPIDVal > 0)
+      motorDir1 = 1;
+    else 
+      motorDir1 = -1;
+    motorSpeed1 = abs(pitchPIDVal);
+    //motorSpeed10 = (motorSpeed % 10) + 1;
+    //motorSpeed1 = motorSpeed / 10;
+    //Serial.print("\t");
+    //Serial.println(pitchPIDVal);
+    setMotorSpeed(1,10,250); 
+    subTick++;
     mainTick = false;
+  }
+  if(subTick == 10)
+  {
+   pitchAngleSet = map(analogRead(A0),0,1024,-70,70);
+   //Serial.println(pitchAngleSet);
+   subTick = 0;
   }
 }
 

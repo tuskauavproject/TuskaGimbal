@@ -42,8 +42,8 @@ void setMotorSpeed(uint8_t motorNumber,int motorSpeed,uint8_t maxPWM)
   // fetch pwm from sinus table
  if(motorNumber == 1)
  {
-    posStep = motorPos1 & 0xff; // constrain posStep to 8 LSB
-    motorCounter0 = mapMotorSpeed(motorSpeed,&maxPWM);
+    posStep = motorPos1; // constrain posStep to 8 LSB
+   // motorCounter0 = mapMotorSpeed(motorSpeed,&maxPWM);
   }
   else
     posStep = motorPos0 ; // constrain posStep to 8 LSB
@@ -116,12 +116,12 @@ int32_t ComputePID(int32_t DTms, int32_t DTinv, int32_t in, int32_t setPoint, in
   float error = (setPoint - in);
   int32_t Ierr;
    
-  Ierr = error * Ki * DTms;
-  Ierr = constrain_int32(Ierr, -(int32_t)1000*100, (int32_t)1000*100);
+  Ierr = error * Ki * 2;
+  Ierr = constrain_int32(Ierr, -(int32_t)100, (int32_t)100);
   *errorSum += Ierr;
  
   /*Compute PID Output*/
-  int32_t out = (Kp * error) + *errorSum + Kd * (error - *errorOld) * DTinv;
+  int32_t out = (Kp * error) + *errorSum + Kd * (error - *errorOld)/5;
   *errorOld = error;
 
   out = out / 4096 / 8;
@@ -136,14 +136,12 @@ ISR(TIMER1_OVF_vect)
   freqCounter1++;  
   freqCounter2++;
 
-  if(freqCounter1 >= motorCounter0)
+  if(freqCounter1 >= 1024/motorSpeed1)
   {
-    freqCounter1 = 0;
-    motorPos1++;
+    motorPos1 += motorDir1;
     if(motorPos1 > 255)
       motorPos1 = 0;
-
-    
+    freqCounter1=0;
     
   }
   if(freqCounter2 >= motorCounter1)
@@ -151,7 +149,7 @@ ISR(TIMER1_OVF_vect)
     freqCounter2 = 0;
     motorPos2++; 
   }
-  if(freqCounter0 >= 50)
+  if(freqCounter0 >= 25)
   {
     PWM_A_MOTOR0 = pwm_a_motor0;
     PWM_B_MOTOR0 = pwm_b_motor0;
