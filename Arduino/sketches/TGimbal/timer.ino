@@ -1,10 +1,5 @@
 // the prescaler is set so that timer0 ticks every 64 clock cycles, and the
 // the overflow handler is called every 256 ticks.
-
-unsigned long millisT1();
-unsigned long microsT1();
-void delayT1(unsigned long ms);
-
 #define MICROSECONDS_PER_TIMER1_OVERFLOW (clockCyclesToMicroseconds(64 * 256))
 
 // the whole number of milliseconds per timer0 overflow

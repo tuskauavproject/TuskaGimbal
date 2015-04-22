@@ -1,5 +1,4 @@
 // Sensor.ino
-
 #define GYRO 1
 #define ACC 1
 
@@ -313,7 +312,7 @@ void ACC_Common() {
 
 void writeParams(uint8_t b) {
   conf.checkNewConf = EEPROM_CONF_VERSION; // make sure we write the current version into eeprom
-  eeprom_write_block((const void*)&conf, (void*)0, sizeof(conf));
+  //eeprom_write_block((const void*)&conf, (void*)0, sizeof(conf));
   //readEEPROM();
   //if (b == 1) blinkLED(15,20,1);
 }
