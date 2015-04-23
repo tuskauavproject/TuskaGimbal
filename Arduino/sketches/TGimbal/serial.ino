@@ -3,6 +3,8 @@ void configSerialCommands(){
   SCMD.addCommand("RPID",readPID);
   SCMD.addCommand("SMP",setMotorPower);
   SCMD.addCommand("RMP",readMotorPower);
+  SCMD.addCommand("AST",startAngleSend);
+  SCMD.addCommand("ASP",stopAngleSend);
 }
 
 void setPID(){
@@ -59,25 +61,31 @@ void readPID(){
 	{
 		if(axis[0] == 'P'){
 			if(strcmp(PID,"0") == 0){
+                                Serial.print("SPID P 0 ");
 				Serial.println(tEEPROM.readFloat("PitchP"));
 			}
 			else if(strcmp(PID,"1") == 0){
+                                Serial.print("SPID P 1 ");
 				Serial.println(tEEPROM.readFloat("PitchI"));
 
 			}
 			else if(strcmp(PID,"2") == 0){
+                                Serial.print("SPID P 2 ");
 				Serial.println(tEEPROM.readFloat("PitchD"));
 			}
 		}
 		else if(axis[0] == 'R'){
 			if(strcmp(PID,"0") == 0){
+                                Serial.print("SPID R 0 ");
 				Serial.println(tEEPROM.readFloat("RollP"));
 			}
 			else if(strcmp(PID,"1") == 0){
+                                Serial.print("SPID R 1 ");
 				Serial.println(tEEPROM.readFloat("RollI"));
 
 			}
 			else if(strcmp(PID,"2") == 0){
+                                Serial.print("SPID R 2 ");
 				Serial.println(tEEPROM.readFloat("RollD"));
 			}
 		}	
@@ -119,5 +127,13 @@ void readMotorPower(){
     Serial.println(mp);
     pitchMotorPower = mp; 
   }
+}
+
+void startAngleSend(){
+  outputAngle = true;
+}
+
+void stopAngleSend(){
+  outputAngle = false;
 }
 

@@ -1,6 +1,6 @@
 //#include "Sensors.h"
 #include "Timer1.h"
-#include "timer2.h"
+//#include "timer2.h"
 #include "TuskaEEPROM.h"
 #include "SerialCommand.h"
 #include "variables.h"
@@ -71,10 +71,13 @@ SerialCommand SCMD;
 
 void setup(){
         Serial.begin(115200);
-        timer2.setup();
+        pinMode(12,INPUT);
+        pinMode(13,OUTPUT);
+        digitalWrite(12,HIGH);
+        //timer2.setup();
         configSerialCommands();
         tEEPROM.configEpprom();
-        initRCDecode();
+        //initRCDecode();
         tEEPROM.readPID(pitchPID);
         tEEPROM.initReadMotorPower(&pitchMotorPower);
         
@@ -95,9 +98,6 @@ void setup(){
 
         initBlController();
         initMotorStuff();
-	
-
-	
 }
 void loop()
 {
@@ -105,22 +105,34 @@ void loop()
 	Gyro_getADC(); // read raw gyro data
 	ACC_getADC(); // read raw accel data
 	IMU();
+
         pitchInt = pitchAngle *1000;
+        rollInt = rollAngle *1000;
         
         int32_t pitchP = pitchPID[0];
         int32_t pitchI = pitchPID[1];
         int32_t pitchD = pitchPID[2];
         
-         
-        rcINTStateChange();
-        if(rcPulse1 < 1000)
-          setAngle = 0;
-        else
-          setAngle = (1500 - rcPulse1)/10.f;
-        int pitchPID = ComputePID(DT_INT_MS, DT_INT_INV,-1*pitchInt, setAngle*1000, &pitchErrorSum, &pitchErrorOld,pitchP,pitchI,pitchD);//500,20,5,100 pwr,~10.7V
+        //int pitchPID = ComputePID(DT_INT_MS, DT_INT_INV,-1*pitchInt, setAngle*1000, &pitchErrorSum, &pitchErrorOld,pitchP,pitchI,pitchD);//500,20,5,100 pwr,~10.7V
+        int pitchPID = ComputePID(DT_INT_MS, DT_INT_INV,pitchInt, setAngle*1000, &pitchErrorSum, &pitchErrorOld,200,5,3);//500,20,5,100 pwr,~10.7V
+        int rollPID = ComputePID(DT_INT_MS, DT_INT_INV,rollInt, 0*1000, &rollErrorSum, &rollErrorOld,500,20,5);//500,20,5,100 pwr,~10.7V
         
-        MoveMotorPosSpeed(1, pitchPID, (uint16_t)pitchMotorPower);
-        Serial.println(pitchAngle);
+        //MoveMotorPosSpeed(1, pitchPID, (uint16_t)pitchMotorPower);
+        MoveMotorPosSpeed(0, pitchPID,60);
+        MoveMotorPosSpeed(1, rollPID,100);
+       
+        if(subTick %8 == 0){
+          if(outputAngle){
+            Serial.print("PRA ");
+            Serial.print(pitchAngle);
+            Serial.print(" ");
+            Serial.println(rollAngle);
+          }
+          setAngle = (analogRead(A0) - 512)/10;
+          //Serial.println(setAngle);
+        }
+        subTick++;
+        subTick = subTick %256;
 }
 
 int32_t ComputePID(int32_t DTms, int32_t DTinv, int32_t in, int32_t setPoint, int32_t *errorSum, int32_t *errorOld, int32_t Kp, int16_t Ki, int32_t Kd)

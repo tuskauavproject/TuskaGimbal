@@ -1,7 +1,10 @@
 #ifndef variable_h
 #define variable_h
-
+//Main
+bool outputAngle = false;
 float setAngle = 0;
+uint32_t prevPrint = 0;
+uint8_t subTick = 0;
 
 // CONFIG VARIABLES
 int32_t pitchPID[3]; 

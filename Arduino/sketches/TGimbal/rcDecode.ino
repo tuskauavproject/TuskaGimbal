@@ -1,4 +1,4 @@
-
+/*
 //volatile byte stateRCInt = 0;    // a counter to see how many times the pin has changed
 //volatile uint32_t lastTimeRising = 0;
 //volatile uint16_t lastPulse = 0;
@@ -37,4 +37,4 @@ void rcINTStateChange(){
     rcPulse1 = rcPulse1 * (1.0f - (1.0f/100)) + lastPulse * (1.0f/100);
   } 
 }
-
+*/
