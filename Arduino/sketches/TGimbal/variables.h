@@ -2,12 +2,13 @@
 #define variable_h
 //Main
 bool outputAngle = false;
-float setAngle = 0;
+float setAnglePitch = 0,setAnglePitchLPF = 0;
+float setAngleRoll = 0,setAngleRollLPF = 0;
 uint32_t prevPrint = 0;
 uint8_t subTick = 0;
 
 // CONFIG VARIABLES
-int32_t pitchPID[3]; 
+int32_t pitchPID[3],rollPID[3]; 
 int8_t accDir[3] = {1,1,1};
 int8_t gyrDir[3] = {1,1,1};
 uint8_t pitchMotorPower = 0;

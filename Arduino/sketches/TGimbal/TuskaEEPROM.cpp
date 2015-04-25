@@ -183,14 +183,22 @@ float TuskaEEPROM::readFloat(char*findName){
 	}
 }
 
-void TuskaEEPROM::readPID(int32_t*PID){
+void TuskaEEPROM::readPID(int32_t*PPID,int32_t*RPID){
   int p = readFloat("PitchP");
   int i = readFloat("PitchI");
   int d = readFloat("PitchD");
   
-  PID[0] = p;
-  PID[1]= i;
-  PID[2] = d;
+  PPID[0] = p;
+  PPID[1]= i;
+  PPID[2] = d;
+  
+  p = readFloat("RollP");
+  i = readFloat("RollI");
+  d = readFloat("RollD");
+  
+  RPID[0] = p;
+  RPID[1]= i;
+  RPID[2] = d;
   
   /*Serial.print("Pitch\tP:");
   Serial.print(PID[0]);

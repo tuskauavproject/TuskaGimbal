@@ -5,6 +5,7 @@ void configSerialCommands(){
   SCMD.addCommand("RMP",readMotorPower);
   SCMD.addCommand("AST",startAngleSend);
   SCMD.addCommand("ASP",stopAngleSend);
+  SCMD.addCommand("AS",setAngleSet);
 }
 
 void setPID(){
@@ -44,7 +45,7 @@ void setPID(){
 				tEEPROM.writeFloat("RollD",aNumber);
 			}
 		}
-                tEEPROM.readPID(pitchPID);
+                tEEPROM.readPID(pitchPID,rollPID);
 
   	} 
   	else {
@@ -135,5 +136,15 @@ void startAngleSend(){
 
 void stopAngleSend(){
   outputAngle = false;
+}
+
+void setAngleSet(){
+  char *p;
+  char *r;
+  p = SCMD.next();
+  r = SCMD.next();
+  
+  setAnglePitch = atof(p);
+  setAngleRoll = atof(r);
 }
 

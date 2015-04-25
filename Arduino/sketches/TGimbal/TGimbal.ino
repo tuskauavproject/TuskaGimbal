@@ -14,7 +14,7 @@
 #define dt 1000              // dt in micros seconds
 #define GYROSCALE ((2380 * PI)/((32767.0f / 4.0f ) * 180.0f * 1000000.0f)) * 1 // A constant which converts raw data units to radians, determined experimentally
 #define RADTODEG  57.2957795  //constant for converting radians to degrees
-#define MOTORUPDATE_FREQ 500                 // in Hz, 1000 is default
+#define MOTORUPDATE_FREQ 1000                 // in Hz, 1000 is default
 #define LOOPUPDATE_FREQ MOTORUPDATE_FREQ     // loop control sample rate equals motor update rate
 //#define ACC_LPF_FACTOR 50   //magnitude of Acc data lowpass, filtering increases Acc lag
 #define GYROWEIGHT 0.98       // weight of gyro in complementary filter, out of 1 
@@ -23,14 +23,14 @@
 #define DT_INT_MS (1000/MOTORUPDATE_FREQ)    // dT, integer, (ms)
 #define DT_INT_INV (MOTORUPDATE_FREQ)        // dT, integer, inverse, (Hz)
 
+#define PS_LPF_FACTOR 100
+
 #define RCPIN1 4
 
 static float *pitch, *roll;
 uint8_t freqCounter = 0;
 bool motorUpdate = false; 
 
-static float pitchAngleSet=0;
-static float rollAngleSet=0;
 static int32_t pitchErrorSum = 0;
 static int32_t rollErrorSum = 0;
 static int32_t pitchErrorOld = 0;
@@ -78,7 +78,7 @@ void setup(){
         configSerialCommands();
         tEEPROM.configEpprom();
         //initRCDecode();
-        tEEPROM.readPID(pitchPID);
+        tEEPROM.readPID(pitchPID,rollPID);
         tEEPROM.initReadMotorPower(&pitchMotorPower);
         
 	initSensors();
@@ -113,13 +113,20 @@ void loop()
         int32_t pitchI = pitchPID[1];
         int32_t pitchD = pitchPID[2];
         
+        int32_t rollP = rollPID[0];
+        int32_t rollI = rollPID[1];
+        int32_t rollD = rollPID[2];
+        
+        setAnglePitchLPF = setAnglePitchLPF * (1.0f - (1.0f/PS_LPF_FACTOR)) + setAnglePitch * (1.0f/PS_LPF_FACTOR);
+        setAngleRollLPF = setAngleRollLPF * (1.0f - (1.0f/PS_LPF_FACTOR)) + setAngleRoll * (1.0f/PS_LPF_FACTOR);
+        
         //int pitchPID = ComputePID(DT_INT_MS, DT_INT_INV,-1*pitchInt, setAngle*1000, &pitchErrorSum, &pitchErrorOld,pitchP,pitchI,pitchD);//500,20,5,100 pwr,~10.7V
-        int pitchPID = ComputePID(DT_INT_MS, DT_INT_INV,pitchInt, setAngle*1000, &pitchErrorSum, &pitchErrorOld,200,5,3);//500,20,5,100 pwr,~10.7V
-        int rollPID = ComputePID(DT_INT_MS, DT_INT_INV,rollInt, 0*1000, &rollErrorSum, &rollErrorOld,500,20,5);//500,20,5,100 pwr,~10.7V
+        int pitchPID = ComputePID(DT_INT_MS, DT_INT_INV,pitchInt, setAnglePitchLPF*1000, &pitchErrorSum, &pitchErrorOld,pitchP,pitchI,pitchD);//500,20,5,100 pwr,~10.7V
+        int rollPID = ComputePID(DT_INT_MS, DT_INT_INV,-1*rollInt, setAngleRollLPF*1000, &rollErrorSum, &rollErrorOld,rollP,rollI,rollD);//500,20,5,100 pwr,~10.7V
         
         //MoveMotorPosSpeed(1, pitchPID, (uint16_t)pitchMotorPower);
         MoveMotorPosSpeed(0, pitchPID,60);
-        MoveMotorPosSpeed(1, rollPID,100);
+        MoveMotorPosSpeed(1, rollPID,90);
        
         if(subTick %8 == 0){
           if(outputAngle){
@@ -128,8 +135,8 @@ void loop()
             Serial.print(" ");
             Serial.println(rollAngle);
           }
-          setAngle = (analogRead(A0) - 512)/10;
-          //Serial.println(setAngle);
+          //setAngle = (analogRead(A0) - 512)/10;
+          //Serial.println(rollInt);
         }
         subTick++;
         subTick = subTick %256;
@@ -145,7 +152,7 @@ int32_t ComputePID(int32_t DTms, int32_t DTinv, int32_t in, int32_t setPoint, in
   *errorSum += Ierr;
  
   /*Compute PID Output*/
-  int32_t out = (Kp * error) + *errorSum + Kd * (error - *errorOld) * DTinv;
+  int32_t out = (Kp * error) + *errorSum + Kd * (error - *errorOld) * DTinv/10;
   *errorOld = error;
 
   out = out / 4096 / 8;
