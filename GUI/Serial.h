@@ -4,6 +4,7 @@
 
 using namespace System::IO::Ports;
 using namespace System;
+using namespace System::Collections;
 
 public ref class Serial{
 public:
@@ -19,13 +20,18 @@ public:
 		this->_serialPort->PortName = this->comPort;
 		this->_serialPort->ReadTimeout = this->readTimeOut;
 		this->_serialPort->WriteTimeout = this->writeTimeout;
-		
+		this->serialCommands = gcnew Queue();
+		setupEvents();
 	}
 
 public: array<Object^>^ findPorts(){
 			this->portArray = SerialPort::GetPortNames();
 			return this->portArray;
 		 }
+
+		void setupEvents(){
+		_serialPort->DataReceived += gcnew SerialDataReceivedEventHandler(this,&Serial::DataReceivedHandler);
+		}
 
 		void connect(){
 			this->comErrors = String::Empty;
@@ -62,21 +68,38 @@ public: array<Object^>^ findPorts(){
 		}
 
 		bool sendCommand(String ^ message){
+			Console::WriteLine(Convert::ToString(_serialPort->IsOpen));
 			if(this->connectionStatus)
 			{
 				message += "\r";
 				this->_serialPort->Write(message);
+				this->comErrors = "Sent Msg"; 
+				return true;
+			}
+			else
+				this->comErrors = "Failed to Send"; 
+				return false;
+		}
+
+		String^ readLine(){
+			String^ returnString;
+			if(this->_serialPort->IsOpen){
 				try{
-					_serialPort->ReadLine();
+					returnString = _serialPort->ReadLine();
 				}
 				catch(TimeoutException^){
 					this->comErrors="Timeout Exception";
 				}
-				return true;
+				return returnString;
 			}
-			else
-				return false;
+			
+			else{
+				this->comErrors="Port Not Open";
+				return "";
+			}
+				
 		}
+
 
 		void setBaudRate(int baud){
 			this->baudRate = baud;
@@ -101,7 +124,29 @@ public: array<Object^>^ findPorts(){
 		bool getStatus(){
 		return this->connectionStatus;
 		}
+
+		void DataReceivedHandler(Object^ sender, SerialDataReceivedEventArgs^ e)
+		{
+			SerialPort^ sp = (SerialPort^)sender;
+			String^ indata = sp->ReadLine();
+			serialCommands->Enqueue(indata);
+			//Console::WriteLine("Data Received:");
+			//Console::Write(indata);
+		}
+		
+		bool commandAvailable(){
+			if(serialCommands->Count > 0)
+				return true;
+			else
+				return false;
+		}
+
+		String^ processCommand(){
+			return (String^)serialCommands->Dequeue();
+		}
+	
 private:
+	Queue^ serialCommands;
 	SerialPort^  _serialPort;
 	array <String^>^ portArray;
 	String^ comErrors;

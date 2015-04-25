@@ -1,0 +1,22 @@
+﻿Build started 3/24/2015 6:43:55 PM.
+Project "C:\Users\Alex\Documents\Visual Studio 2012\Projects\Tuska\Tuska Gimbal\GimbalGui2.0\GimbalGui2.0.vcxproj" on node 2 (Build target(s)).
+ClCompile:
+  C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /AI"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5.1\\" /AI"C:\Program Files (x86)\Windows Kits\8.0\References\CommonConfiguration\Neutral" /AI"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5.1\Facades\\" /Zi /clr /nologo /W3 /WX- /O2 /Oy- /D WIN32 /D NDEBUG /D _UNICODE /D UNICODE /EHa /MD /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc110.pdb" /TP /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5.1\Microsoft.VisualBasic.dll" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\VBPowerPacks\v10.0\Microsoft.VisualBasic.PowerPacks.Vs.dll" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5.1\mscorlib.dll" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5.1\System.Data.dll" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5.1\System.dll" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5.1\System.Drawing.dll" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5.1\System.Windows.Forms.dll" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5.1\System.Xml.dll" /analyze- /errorReport:prompt Main.cpp
+  Main.cpp
+c:\users\alex\documents\visual studio 2012\projects\tuska\tuska gimbal\gimbalgui2.0\Settings.h(100): warning C4244: 'return' : conversion from 'double' to 'float', possible loss of data
+c:\users\alex\documents\visual studio 2012\projects\tuska\tuska gimbal\gimbalgui2.0\Settings.h(108): warning C4244: 'return' : conversion from 'double' to 'float', possible loss of data
+c:\users\alex\documents\visual studio 2012\projects\tuska\tuska gimbal\gimbalgui2.0\Form1.h(221): warning C4800: 'int' : forcing value to bool 'true' or 'false' (performance warning)
+c:\users\alex\documents\visual studio 2012\projects\tuska\tuska gimbal\gimbalgui2.0\Form1.h(223): warning C4800: 'int' : forcing value to bool 'true' or 'false' (performance warning)
+c:\users\alex\documents\visual studio 2012\projects\tuska\tuska gimbal\gimbalgui2.0\Form1.h(1494): warning C4101: 'e' : unreferenced local variable
+c:\users\alex\documents\visual studio 2012\projects\tuska\tuska gimbal\gimbalgui2.0\Form1.h(1516): warning C4101: 'e' : unreferenced local variable
+  C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /Zi /clr /nologo /W3 /WX- /O2 /Oy- /D WIN32 /D NDEBUG /D _UNICODE /D UNICODE /EHa /MD /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc110.pdb" /TP /analyze- /errorReport:prompt "C:\Users\Alex\AppData\Local\Temp\.NETFramework,Version=v4.5.1.AssemblyAttributes.cpp"
+  .NETFramework,Version=v4.5.1.AssemblyAttributes.cpp
+Link:
+  C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Alex\Documents\Visual Studio 2012\Projects\Tuska\Tuska Gimbal\GimbalGui2.0\Release\GimbalGui2.0.exe" /INCREMENTAL:NO /NOLOGO /ASSEMBLYRESOURCE:Release\GimbalGui20.Form1.resources /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Alex\Documents\Visual Studio 2012\Projects\Tuska\Tuska Gimbal\GimbalGui2.0\Release\GimbalGui2.0.pdb" /TLBID:1 /DYNAMICBASE /FIXED:NO /NXCOMPAT /MACHINE:X86 /SAFESEH Release\Main.obj
+  "Release\.NETFramework,Version=v4.5.1.AssemblyAttributes.obj"
+  GimbalGui2.0.vcxproj -> C:\Users\Alex\Documents\Visual Studio 2012\Projects\Tuska\Tuska Gimbal\GimbalGui2.0\Release\GimbalGui2.0.exe
+Done Building Project "C:\Users\Alex\Documents\Visual Studio 2012\Projects\Tuska\Tuska Gimbal\GimbalGui2.0\GimbalGui2.0.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:14.21
