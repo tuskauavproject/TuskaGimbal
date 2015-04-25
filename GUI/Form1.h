@@ -18,6 +18,7 @@ namespace GimbalGui20 {
 	using namespace System::Windows::Forms;
 	using namespace System::Data;
 	using namespace System::Drawing;
+	using namespace System::Threading;
 
 	/// <summary>
 	/// Summary for Form1
@@ -27,15 +28,18 @@ namespace GimbalGui20 {
 	public:
 		Form1(void)
 		{
-
+			Form1::DoubleBuffered = true;
 			InitializeComponent();
+			backBuffer = gcnew Bitmap(ClientSize.Width, ClientSize.Height);
+			//frontBuffer = gcnew Bitmap(ClientSize.Width, ClientSize.Height);
+			//gBackBuffer->
+			gBackBuffer = Graphics::FromImage(backBuffer);
 			referenceSettings = gcnew Settings();
 			currentSettings = gcnew Settings(); //use default constructor for now
 			SerialCom = gcnew Serial();
 			resetGui();
-
-			
-			
+			SerialProcessing = gcnew Thread(gcnew ThreadStart(this, &Form1::processSerialCommands));
+			SerialProcessing->Start();
 			//
 			//TODO: Add the constructor code here
 			//
@@ -57,11 +61,22 @@ namespace GimbalGui20 {
 		Settings^ currentSettings;
 		Settings^ referenceSettings;
 		Serial^ SerialCom;
+		Thread^ SerialProcessing;
+		Thread^ mouseDown;
+	private:
+		UInt64 mainTick;
+		bool updateAngles;
+		double pitchDisplay,rollDisplay;
+		double pitchAngleSet,rollAngleSet;
+		Bitmap^ backBuffer;
+		Graphics^ gBackBuffer;
 
 	private: System::Windows::Forms::GroupBox^  groupBox4;
+	private: System::Windows::Forms::Label^  labelRollAngle;
 	protected: 
-	private: System::Windows::Forms::Label^  label13;
-	private: System::Windows::Forms::Label^  label12;
+
+	private: System::Windows::Forms::Label^  labelPitchAngle;
+
 	private: System::Windows::Forms::Label^  label11;
 	private: System::Windows::Forms::Label^  label10;
 	private: System::Windows::Forms::CheckBox^  checkBoxReverseY;
@@ -73,8 +88,10 @@ namespace GimbalGui20 {
 	private: System::Windows::Forms::CheckBox^  checkBoxSwapXY;
 
 	private: System::Windows::Forms::Button^  bnCalAcc;
-	private: System::Windows::Forms::Button^  button1;
-	private: System::Windows::Forms::Button^  bnStartReading;
+	private: System::Windows::Forms::Button^  bnStopReadingAngle;
+
+	private: System::Windows::Forms::Button^  bnStartReadingAngle;
+
 	private: System::Windows::Forms::Button^  bnCalGyro;
 	private: System::Windows::Forms::StatusStrip^  statusStrip1;
 	private: System::Windows::Forms::ToolStripStatusLabel^  toolStripStatusLabel1;
@@ -167,6 +184,15 @@ private: System::Windows::Forms::Button^  buttonSave;
 private: System::Windows::Forms::Button^  buttonDefault;
 private: System::Windows::Forms::PictureBox^  pictureBox1;
 private: System::Windows::Forms::BindingSource^  bindingSource1;
+
+
+private: Microsoft::VisualBasic::PowerPacks::RectangleShape^  rectangleShape1;
+private: Microsoft::VisualBasic::PowerPacks::ShapeContainer^  shapeContainer3;
+private: System::Windows::Forms::Label^  labelSetAngleRoll;
+private: System::Windows::Forms::Label^  labelSetAnglePitch;
+
+
+
 
 private: System::ComponentModel::IContainer^  components;
 
@@ -350,6 +376,12 @@ private: bool compare(bool a, bool b){
 	}
 
 	void resetGui(){
+
+		if(Form1::InvokeRequired){
+			Invoke(gcnew MethodInvoker(this,&Form1::resetGui));
+			return;
+		}
+
 		this->radioPitchMotor1->Checked = currentSettings->getMotorSelect();
 		this->radioPitchMotor2->Checked = !(currentSettings->getMotorSelect());
 		this->radioRollMotor1->Checked = radioPitchMotor2->Checked;
@@ -380,6 +412,15 @@ private: bool compare(bool a, bool b){
 		this->comboBoxComPort->Items->Clear();
         this->comboBoxComPort->Items->AddRange(this->SerialCom->findPorts());
 	}
+
+	void updatePitchRollGui(){
+		if(Form1::InvokeRequired){
+			Invoke(gcnew MethodInvoker(this,&Form1::updatePitchRollGui));
+			return;
+		}
+		labelPitchAngle->Text = Convert::ToString(pitchDisplay);
+		labelRollAngle->Text = Convert::ToString(rollDisplay);
+	}
 	private:
 		/// <summary>
 		/// Required designer variable.
@@ -396,8 +437,8 @@ private: bool compare(bool a, bool b){
 			this->components = (gcnew System::ComponentModel::Container());
 			System::ComponentModel::ComponentResourceManager^  resources = (gcnew System::ComponentModel::ComponentResourceManager(Form1::typeid));
 			this->groupBox4 = (gcnew System::Windows::Forms::GroupBox());
-			this->label13 = (gcnew System::Windows::Forms::Label());
-			this->label12 = (gcnew System::Windows::Forms::Label());
+			this->labelRollAngle = (gcnew System::Windows::Forms::Label());
+			this->labelPitchAngle = (gcnew System::Windows::Forms::Label());
 			this->label11 = (gcnew System::Windows::Forms::Label());
 			this->label10 = (gcnew System::Windows::Forms::Label());
 			this->checkBoxReverseY = (gcnew System::Windows::Forms::CheckBox());
@@ -405,8 +446,8 @@ private: bool compare(bool a, bool b){
 			this->checkBoxReverseZ = (gcnew System::Windows::Forms::CheckBox());
 			this->checkBoxSwapXY = (gcnew System::Windows::Forms::CheckBox());
 			this->bnCalAcc = (gcnew System::Windows::Forms::Button());
-			this->button1 = (gcnew System::Windows::Forms::Button());
-			this->bnStartReading = (gcnew System::Windows::Forms::Button());
+			this->bnStopReadingAngle = (gcnew System::Windows::Forms::Button());
+			this->bnStartReadingAngle = (gcnew System::Windows::Forms::Button());
 			this->bnCalGyro = (gcnew System::Windows::Forms::Button());
 			this->statusStrip1 = (gcnew System::Windows::Forms::StatusStrip());
 			this->toolStripStatusLabel1 = (gcnew System::Windows::Forms::ToolStripStatusLabel());
@@ -480,6 +521,10 @@ private: bool compare(bool a, bool b){
 			this->buttonDefault = (gcnew System::Windows::Forms::Button());
 			this->pictureBox1 = (gcnew System::Windows::Forms::PictureBox());
 			this->bindingSource1 = (gcnew System::Windows::Forms::BindingSource(this->components));
+			this->rectangleShape1 = (gcnew Microsoft::VisualBasic::PowerPacks::RectangleShape());
+			this->shapeContainer3 = (gcnew Microsoft::VisualBasic::PowerPacks::ShapeContainer());
+			this->labelSetAngleRoll = (gcnew System::Windows::Forms::Label());
+			this->labelSetAnglePitch = (gcnew System::Windows::Forms::Label());
 			this->groupBox4->SuspendLayout();
 			this->statusStrip1->SuspendLayout();
 			this->groupBox1->SuspendLayout();
@@ -507,8 +552,8 @@ private: bool compare(bool a, bool b){
 			// 
 			// groupBox4
 			// 
-			this->groupBox4->Controls->Add(this->label13);
-			this->groupBox4->Controls->Add(this->label12);
+			this->groupBox4->Controls->Add(this->labelRollAngle);
+			this->groupBox4->Controls->Add(this->labelPitchAngle);
 			this->groupBox4->Controls->Add(this->label11);
 			this->groupBox4->Controls->Add(this->label10);
 			this->groupBox4->Controls->Add(this->checkBoxReverseY);
@@ -516,8 +561,8 @@ private: bool compare(bool a, bool b){
 			this->groupBox4->Controls->Add(this->checkBoxReverseZ);
 			this->groupBox4->Controls->Add(this->checkBoxSwapXY);
 			this->groupBox4->Controls->Add(this->bnCalAcc);
-			this->groupBox4->Controls->Add(this->button1);
-			this->groupBox4->Controls->Add(this->bnStartReading);
+			this->groupBox4->Controls->Add(this->bnStopReadingAngle);
+			this->groupBox4->Controls->Add(this->bnStartReadingAngle);
 			this->groupBox4->Controls->Add(this->bnCalGyro);
 			this->groupBox4->Location = System::Drawing::Point(27, 236);
 			this->groupBox4->Name = L"groupBox4";
@@ -526,25 +571,25 @@ private: bool compare(bool a, bool b){
 			this->groupBox4->TabStop = false;
 			this->groupBox4->Text = L"IMU Control";
 			// 
-			// label13
+			// labelRollAngle
 			// 
-			this->label13->AutoSize = true;
-			this->label13->Location = System::Drawing::Point(94, 247);
-			this->label13->Name = L"label13";
-			this->label13->Size = System::Drawing::Size(28, 13);
-			this->label13->TabIndex = 25;
-			this->label13->Text = L"0.00";
-			this->label13->TextAlign = System::Drawing::ContentAlignment::MiddleCenter;
+			this->labelRollAngle->AutoSize = true;
+			this->labelRollAngle->Location = System::Drawing::Point(94, 247);
+			this->labelRollAngle->Name = L"labelRollAngle";
+			this->labelRollAngle->Size = System::Drawing::Size(28, 13);
+			this->labelRollAngle->TabIndex = 25;
+			this->labelRollAngle->Text = L"0.00";
+			this->labelRollAngle->TextAlign = System::Drawing::ContentAlignment::MiddleCenter;
 			// 
-			// label12
+			// labelPitchAngle
 			// 
-			this->label12->AutoSize = true;
-			this->label12->Location = System::Drawing::Point(9, 247);
-			this->label12->Name = L"label12";
-			this->label12->Size = System::Drawing::Size(28, 13);
-			this->label12->TabIndex = 25;
-			this->label12->Text = L"0.00";
-			this->label12->TextAlign = System::Drawing::ContentAlignment::MiddleCenter;
+			this->labelPitchAngle->AutoSize = true;
+			this->labelPitchAngle->Location = System::Drawing::Point(9, 247);
+			this->labelPitchAngle->Name = L"labelPitchAngle";
+			this->labelPitchAngle->Size = System::Drawing::Size(28, 13);
+			this->labelPitchAngle->TabIndex = 25;
+			this->labelPitchAngle->Text = L"0.00";
+			this->labelPitchAngle->TextAlign = System::Drawing::ContentAlignment::MiddleCenter;
 			// 
 			// label11
 			// 
@@ -618,23 +663,25 @@ private: bool compare(bool a, bool b){
 			this->bnCalAcc->Text = L"Calibrate Acc";
 			this->bnCalAcc->UseVisualStyleBackColor = true;
 			// 
-			// button1
+			// bnStopReadingAngle
 			// 
-			this->button1->Location = System::Drawing::Point(6, 198);
-			this->button1->Name = L"button1";
-			this->button1->Size = System::Drawing::Size(121, 23);
-			this->button1->TabIndex = 21;
-			this->button1->Text = L"Stop Reading";
-			this->button1->UseVisualStyleBackColor = true;
+			this->bnStopReadingAngle->Location = System::Drawing::Point(6, 198);
+			this->bnStopReadingAngle->Name = L"bnStopReadingAngle";
+			this->bnStopReadingAngle->Size = System::Drawing::Size(121, 23);
+			this->bnStopReadingAngle->TabIndex = 21;
+			this->bnStopReadingAngle->Text = L"Stop Reading";
+			this->bnStopReadingAngle->UseVisualStyleBackColor = true;
+			this->bnStopReadingAngle->Click += gcnew System::EventHandler(this, &Form1::bnStopReadingAngle_Click);
 			// 
-			// bnStartReading
+			// bnStartReadingAngle
 			// 
-			this->bnStartReading->Location = System::Drawing::Point(6, 169);
-			this->bnStartReading->Name = L"bnStartReading";
-			this->bnStartReading->Size = System::Drawing::Size(121, 23);
-			this->bnStartReading->TabIndex = 21;
-			this->bnStartReading->Text = L"Start Reading";
-			this->bnStartReading->UseVisualStyleBackColor = true;
+			this->bnStartReadingAngle->Location = System::Drawing::Point(6, 169);
+			this->bnStartReadingAngle->Name = L"bnStartReadingAngle";
+			this->bnStartReadingAngle->Size = System::Drawing::Size(121, 23);
+			this->bnStartReadingAngle->TabIndex = 21;
+			this->bnStartReadingAngle->Text = L"Start Reading";
+			this->bnStartReadingAngle->UseVisualStyleBackColor = true;
+			this->bnStartReadingAngle->Click += gcnew System::EventHandler(this, &Form1::bnStartReadingAngle_Click);
 			// 
 			// bnCalGyro
 			// 
@@ -648,9 +695,9 @@ private: bool compare(bool a, bool b){
 			// statusStrip1
 			// 
 			this->statusStrip1->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(1) {this->toolStripStatusLabel1});
-			this->statusStrip1->Location = System::Drawing::Point(0, 560);
+			this->statusStrip1->Location = System::Drawing::Point(0, 590);
 			this->statusStrip1->Name = L"statusStrip1";
-			this->statusStrip1->Size = System::Drawing::Size(1019, 22);
+			this->statusStrip1->Size = System::Drawing::Size(1033, 22);
 			this->statusStrip1->TabIndex = 27;
 			this->statusStrip1->Text = L"statusStrip1";
 			// 
@@ -1392,11 +1439,51 @@ private: bool compare(bool a, bool b){
 			this->pictureBox1->TabStop = false;
 			this->pictureBox1->WaitOnLoad = true;
 			// 
+			// rectangleShape1
+			// 
+			this->rectangleShape1->BackColor = System::Drawing::SystemColors::Menu;
+			this->rectangleShape1->BorderColor = System::Drawing::Color::Black;
+			this->rectangleShape1->Location = System::Drawing::Point(239, 366);
+			this->rectangleShape1->Name = L"rectangleShape1";
+			this->rectangleShape1->Size = System::Drawing::Size(200, 200);
+			this->rectangleShape1->MouseDown += gcnew System::Windows::Forms::MouseEventHandler(this, &Form1::rectangleShape1_MouseDown);
+			this->rectangleShape1->Click += gcnew System::EventHandler(this,&Form1::rectangleShape1_Click);
+			// 
+			// shapeContainer3
+			// 
+			this->shapeContainer3->Location = System::Drawing::Point(0, 0);
+			this->shapeContainer3->Margin = System::Windows::Forms::Padding(0);
+			this->shapeContainer3->Name = L"shapeContainer3";
+			this->shapeContainer3->Shapes->AddRange(gcnew cli::array< Microsoft::VisualBasic::PowerPacks::Shape^  >(1) {this->rectangleShape1});
+			this->shapeContainer3->Size = System::Drawing::Size(1033, 612);
+			this->shapeContainer3->TabIndex = 32;
+			this->shapeContainer3->TabStop = false;
+			// 
+			// labelSetAngleRoll
+			// 
+			this->labelSetAngleRoll->AutoSize = true;
+			this->labelSetAngleRoll->Location = System::Drawing::Point(236, 572);
+			this->labelSetAngleRoll->Name = L"labelSetAngleRoll";
+			this->labelSetAngleRoll->Size = System::Drawing::Size(28, 13);
+			this->labelSetAngleRoll->TabIndex = 33;
+			this->labelSetAngleRoll->Text = L"0.00";
+			// 
+			// labelSetAnglePitch
+			// 
+			this->labelSetAnglePitch->AutoSize = true;
+			this->labelSetAnglePitch->Location = System::Drawing::Point(412, 572);
+			this->labelSetAnglePitch->Name = L"labelSetAnglePitch";
+			this->labelSetAnglePitch->Size = System::Drawing::Size(28, 13);
+			this->labelSetAnglePitch->TabIndex = 33;
+			this->labelSetAnglePitch->Text = L"0.00";
+			// 
 			// Form1
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-			this->ClientSize = System::Drawing::Size(1019, 582);
+			this->ClientSize = System::Drawing::Size(1033, 612);
+			this->Controls->Add(this->labelSetAnglePitch);
+			this->Controls->Add(this->labelSetAngleRoll);
 			this->Controls->Add(this->pictureBox1);
 			this->Controls->Add(this->buttonSave);
 			this->Controls->Add(this->buttonLoad);
@@ -1408,8 +1495,10 @@ private: bool compare(bool a, bool b){
 			this->Controls->Add(this->groupBox12);
 			this->Controls->Add(this->pMotorGroup);
 			this->Controls->Add(this->title);
+			this->Controls->Add(this->shapeContainer3);
 			this->Name = L"Form1";
 			this->Text = L"Form1";
+			this->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &Form1::Form1_Paint);
 			this->groupBox4->ResumeLayout(false);
 			this->groupBox4->PerformLayout();
 			this->statusStrip1->ResumeLayout(false);
@@ -1445,9 +1534,7 @@ private: bool compare(bool a, bool b){
 			this->groupBox15->PerformLayout();
 			this->groupBox16->ResumeLayout(false);
 			this->groupBox16->PerformLayout();
-//			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->trackBarRollMotorPower))->EndInit();
-//			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->pictureBox1))->EndInit();
-//			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->bindingSource1))->EndInit();
+			
 			this->ResumeLayout(false);
 			this->PerformLayout();
 
@@ -1559,8 +1646,13 @@ private: System::Void checkBoxReverseZ_CheckedChanged(System::Object^  sender, S
 		 }
 
 private: System::Void timer1_Tick(System::Object^  sender, System::EventArgs^  e) {
+			 mainTick++;
 			 this->checkForChanges(currentSettings,referenceSettings);
 			 this->updateGUI(currentSettings);
+		 }
+
+private: System::Void serialDataRecieved(System::Object^  sender, System::EventArgs^  e) {
+			// this->currentSettings->setReverseYAxis(this->checkBoxReverseY->Checked);
 		 }
 
 // PID Box Events
@@ -1634,5 +1726,168 @@ private: System::Void closeButton_Click(System::Object^  sender, System::EventAr
 private: System::Void comboBoxBaud_SelectedIndexChanged(System::Object^  sender, System::EventArgs^  e) {
 			 this->SerialCom->setBaudRate(Convert::ToInt32(comboBoxBaud->SelectedItem));
 		 }
+
+private: System::Void bnStartReadingAngle_Click(System::Object^  sender, System::EventArgs^  e) {
+			 updateAngles = true;
+			 SerialCom->sendCommand("AST");
+		 }
+private: System::Void bnStopReadingAngle_Click(System::Object^  sender, System::EventArgs^  e) {
+			 SerialCom->sendCommand("ASP");
+			 updateAngles = false;
+			 pitchDisplay=0;
+			 rollDisplay=0;
+			 updatePitchRollGui();
+		 }
+
+private: System::Void Form1_Paint(System::Object^  sender, System::Windows::Forms::PaintEventArgs^  e) {
+			int rectangleX = rectangleShape1->Location.X;
+			int rectangleY = rectangleShape1->Location.Y;
+			
+			int rectangleW = rectangleShape1->Width;
+			int rectangleH = rectangleShape1->Height;
+			int rectangleXRight = rectangleX + rectangleW;
+			int rectangleYBottom = rectangleY + rectangleH;
+			int rectangleCenterX = (rectangleX + (rectangleXRight))/2;
+			int rectangleCenterY = (rectangleY + (rectangleYBottom))/2;
+
+			gBackBuffer->DrawRectangle(gcnew Pen(Color::Black),rectangleX,rectangleY,rectangleW,rectangleH);
+			gBackBuffer->DrawLine(gcnew Pen(Color::Black),rectangleCenterX,rectangleY,rectangleCenterX,rectangleYBottom);
+			gBackBuffer->DrawLine(gcnew Pen(Color::Black),rectangleX,rectangleCenterY,rectangleXRight,rectangleCenterY);
+
+			//rectangleShape1->dra(gBackBuffer,rectangleShape1->Bounds);
+			//this->rectangleShape1->Location = System::Drawing::Point(239, 366);
+			
+			//this->rectangleShape1->Size = System::Drawing::Size(200, 200);
+			e->Graphics->DrawImageUnscaled(backBuffer, 0, 0);
+			gBackBuffer->Clear(Color::Transparent);
+			 }
+
+void processSerialCommands(){
+	while(1){
+		if(SerialCom->commandAvailable()){
+			String^ command = SerialCom->processCommand();
+			Console::WriteLine(command);
+			array<String^>^ splitCommand = command->Split(' ');
+			String^commandType = "";
+			if(splitCommand->Length > 0){
+				commandType = splitCommand[0];
+			}
+			if(commandType == "SPID")
+				serialSetPID(splitCommand);
+			else if(commandType == "PRA")
+				serialUpdatePitchRoll(splitCommand);
+		}
+
+	}
+}
+
+void serialSetPID(array<String^>^ s){
+	int index = 0;
+	double value = 0;
+
+	int::TryParse(s[2],index);
+	double::TryParse(s[3],value);
+
+	if(s[1]->ToLower() == "p"){
+		currentSettings->setPitchPID(index,value);
+		resetGui();
+		//updateGUI(currentSettings);
+
+	}
+	if(s[1]->ToLower() == "r"){
+		resetGui();
+		currentSettings->setRollPID(index,value);
+		updateGUI(currentSettings);
+	}
+}
+
+void serialUpdatePitchRoll(array<String^>^s){
+	if(updateAngles){
+		double pitch = 0;
+		double roll = 0;
+		double::TryParse(s[1],pitch);
+		double::TryParse(s[2],roll);
+
+		pitchDisplay = pitch;
+		rollDisplay = roll;
+	
+		updatePitchRollGui();
+	}
+}
+
+private: System::Void rectangleShape1_Click(System::Object^  sender, System::EventArgs^  e) {
+			//Console::WriteLine(this->Location.X + this->Location.Y);
+			int mouseX = rectangleShape1->PointToClient(Cursor->Position).X;
+			int mouseY = rectangleShape1->PointToClient(Cursor->Position).Y;
+			int mouseXdraw = MousePosition.X;
+			int mouseYdraw = MousePosition.Y;
+			int centerX = rectangleShape1->Width/2;
+			int centerY = rectangleShape1->Height/2;
+			int offsetX = mouseX - centerX;
+			int offsetY = mouseY - centerY;
+			Console::WriteLine(offsetX+","+offsetY); 
+			//gBackBuffer->FillEllipse(gcnew SolidBrush(Color::Black),Form1::PointToClient(Cursor->Position).X-3,Form1::PointToClient(Cursor->Position).Y-3,6,6);
+			drawPointer();
+			//Invalidate();
+			if(SerialCom->getStatus())
+				sendAngleSetCommand();
+		 }
+private: System::Void rectangleShape1_MouseDown(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
+			//Console::WriteLine(this->Location.X + this->Location.Y);
+			mouseDown = gcnew Thread(gcnew ThreadStart(this, &Form1::whileMouseDown));
+			mouseDown->Start();
+			//SerialCom->sendCommand("SA " + Convert::ToString(-1*offsetY/3) + " " + Convert::ToString(offsetX/3));
+		 }
+
+void whileMouseDown(){
+	drawPointer();
+	UInt64 pTick = mainTick;
+	while(Convert::ToBoolean((Convert::ToInt32(Control::MouseButtons) & 1 << 20) >> 20)){
+		if(mainTick - pTick > 0){
+			drawPointer();
+			sendAngleSetCommand();
+			pTick = mainTick;
+		}
+	}
+	mouseDown->Join();
+}
+
+void drawPointer(){
+	if(Form1::InvokeRequired){
+		Invoke(gcnew MethodInvoker(this,&Form1::drawPointer));
+		return;
+	}
+
+	int mouseX = rectangleShape1->PointToClient(Cursor->Position).X;
+	int mouseY = rectangleShape1->PointToClient(Cursor->Position).Y;
+	int mouseXdraw = MousePosition.X;
+	int mouseYdraw = MousePosition.Y;
+	int centerX = rectangleShape1->Width/2;
+	int centerY = rectangleShape1->Height/2;
+	int offsetX = mouseX - centerX;
+	int offsetY = mouseY - centerY;
+	if(mouseX >= 0 && mouseX <= rectangleShape1->Width && mouseY >= 0 && mouseY <= rectangleShape1->Height){ // make sure cursor does not leave bounding rectangle
+	//Console::WriteLine(offsetX+","+offsetY);
+		gBackBuffer->FillEllipse(gcnew SolidBrush(Color::Black),Form1::PointToClient(Cursor->Position).X-3,Form1::PointToClient(Cursor->Position).Y-3,6,6);
+		Invalidate();
+		double p = -1*offsetY/3.f;
+		double r = offsetX/3.f;
+		this->labelSetAnglePitch->Text = String::Format("{0:0.00}", p);
+		this->labelSetAngleRoll->Text = String::Format("{0:0.00}", r);	
+		pitchAngleSet = p;
+		rollAngleSet = r;
+	}
+}
+
+void sendAngleSetCommand(){
+	if(Form1::InvokeRequired){
+		Invoke(gcnew MethodInvoker(this,&Form1::sendAngleSetCommand));
+		return;
+	}
+	if(SerialCom->getStatus()){
+			Console::WriteLine("AS " + String::Format("{0:0.00}", pitchAngleSet) + " " + String::Format("{0:0.00}", rollAngleSet));
+			SerialCom->sendCommand("AS " + String::Format("{0:0.00}", pitchAngleSet) + " " + String::Format("{0:0.00}", rollAngleSet));
+	}
+}
 };
 }

@@ -3,20 +3,20 @@
 #define ERRORRED Color::FromArgb(255,255,127,127)
 
 //Settings 
-#define PMAX 100
+#define PMAX 1000
 #define PMIN 0
 #define IMAX 100
 #define IMIN 0
 #define DMAX 100
 #define DMIN 0
 
-#define PPDefault 10.0
-#define PIDefault 5.0
-#define PDDefault 2.5
+#define PPDefault 900.0
+#define PIDefault 20
+#define PDDefault 4
 
-#define RPDefault 10.0
-#define RIDefault 5.0
-#define RDDefault 2.5
+#define RPDefault 900
+#define RIDefault 20
+#define RDDefault 4
 
 #define P 0
 #define I 1
