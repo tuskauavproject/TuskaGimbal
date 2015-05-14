@@ -5,6 +5,7 @@
 #include "Arduino.h"
 #include "variables.h"
 #include "Timer1.h"
+#include "defines.h"
 
 #define GYRO_X_AXIS 0
 #define GYRO_Y_AXIS 2
@@ -14,12 +15,9 @@
 #define ACC_Y_AXIS 2
 #define ACC_Z_AXIS 1
 
-#define ACC_LPF_FACTOR 40
-#define GYROSCALE ((2380 * PI)/((32767.0f / 4.0f ) * 180.0f * 1000000.0f)) * 1
-#define RADTODEG  57.2957795  //constant for converting radians to degrees
 #define UPPER_ACC_LIMIT 422500 //1.3g  = (1.3*500)^2 
 #define LOWER_ACC_LIMIT 122500 //0.7g  = (0.7*500)^2 
-#define GYROWEIGHT 0.98 
+
 
 class IMU
 {
