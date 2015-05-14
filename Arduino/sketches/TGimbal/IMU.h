@@ -1,6 +1,6 @@
 //IMU.h
-#ifndef TuskaEEPROM_h
-#define TuskaEEPROM_h
+#ifndef IMU_h
+#define IMU_h
 
 #include "Arduino.h"
 #include "variables.h"
@@ -38,7 +38,7 @@ private:
 	
   	float deltaGyroAngle[3]; 
 
-  	static uint32_t previousTimeInMicroseconds,currentTimeInMicroseconds;
+  	uint32_t previousTimeInMicroseconds,currentTimeInMicroseconds;
 
   	float gyroScaleFactor;
 

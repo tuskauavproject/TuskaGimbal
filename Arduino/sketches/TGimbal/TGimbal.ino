@@ -65,6 +65,7 @@ int8_t pwmSinMotor[256];
 
 TuskaEEPROM tEEPROM;
 SerialCommand SCMD;
+IMU imu;
 
 
 void setup(){
@@ -98,6 +99,7 @@ void loop(){
   SCMD.readSerial();
 	Gyro_getADC(); // read raw gyro data
 	ACC_getADC(); // read raw accel data
+  imu.calculate();
 	
 
   pitchInt = pitchAngle *1000;
