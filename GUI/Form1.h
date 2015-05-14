@@ -1405,6 +1405,7 @@ private: bool compare(bool a, bool b){
 			this->buttonLoad->TabIndex = 29;
 			this->buttonLoad->Text = L"Load";
 			this->buttonLoad->UseVisualStyleBackColor = true;
+			this->buttonLoad->Click += gcnew System::EventHandler(this, &Form1::buttonLoad_Click);
 			// 
 			// buttonSave
 			// 
@@ -1445,9 +1446,9 @@ private: bool compare(bool a, bool b){
 			this->rectangleShape1->BorderColor = System::Drawing::Color::Black;
 			this->rectangleShape1->Location = System::Drawing::Point(239, 366);
 			this->rectangleShape1->Name = L"rectangleShape1";
-			this->rectangleShape1->Size = System::Drawing::Size(200, 200);
+			this->rectangleShape1->Size = System::Drawing::Size(201, 201);
+			this->rectangleShape1->Click += gcnew System::EventHandler(this, &Form1::rectangleShape1_Click);
 			this->rectangleShape1->MouseDown += gcnew System::Windows::Forms::MouseEventHandler(this, &Form1::rectangleShape1_MouseDown);
-			this->rectangleShape1->Click += gcnew System::EventHandler(this,&Form1::rectangleShape1_Click);
 			// 
 			// shapeContainer3
 			// 
@@ -1534,7 +1535,6 @@ private: bool compare(bool a, bool b){
 			this->groupBox15->PerformLayout();
 			this->groupBox16->ResumeLayout(false);
 			this->groupBox16->PerformLayout();
-			
 			this->ResumeLayout(false);
 			this->PerformLayout();
 
@@ -1693,8 +1693,16 @@ private: System::Void rDBox_TextChanged(System::Object^  sender, System::EventAr
 //Save Button
 private: System::Void buttonSave_Click(System::Object^  sender, System::EventArgs^  e) {
 			this->referenceSettings = gcnew Settings(currentSettings);
+			this->sendPIDs();
+			this->sendMotorPower();
 			resetGui();
 		 }
+
+private: System::Void buttonLoad_Click(System::Object^  sender, System::EventArgs^  e) {
+			this->readPIDs();
+			this->readMotorPower();
+		 }
+
 
 private: System::Void buttonReset_Click(System::Object^  sender, System::EventArgs^  e) {
 			 this->currentSettings = gcnew Settings(referenceSettings);
@@ -1716,7 +1724,11 @@ private: System::Void comboBoxComPort_SelectedIndexChanged(System::Object^  send
 		 }
 
 private: System::Void initButton_Click(System::Object^  sender, System::EventArgs^  e) {
-			 this->SerialCom->connect();
+			this->SerialCom->connect();
+			if(SerialCom->getStatus()){
+				this->readPIDs();
+				this->readMotorPower();
+			}
 		 }
 
 private: System::Void closeButton_Click(System::Object^  sender, System::EventArgs^  e) {
@@ -1774,6 +1786,8 @@ void processSerialCommands(){
 			}
 			if(commandType == "SPID")
 				serialSetPID(splitCommand);
+			else if(commandType == "SMP")
+				serialSetMotorPower(splitCommand);
 			else if(commandType == "PRA")
 				serialUpdatePitchRoll(splitCommand);
 		}
@@ -1790,15 +1804,38 @@ void serialSetPID(array<String^>^ s){
 
 	if(s[1]->ToLower() == "p"){
 		currentSettings->setPitchPID(index,value);
+		referenceSettings->setPitchPID(index,value);
 		resetGui();
-		//updateGUI(currentSettings);
+		updateGUI(currentSettings);
+	}
+
+	if(s[1]->ToLower() == "r"){
+		resetGui();
+		currentSettings->setRollPID(index,value);
+		referenceSettings->setRollPID(index,value);
+		updateGUI(currentSettings);
+	}
+}
+
+void serialSetMotorPower(array<String^>^s){
+	UInt16 value = 0;
+	UInt16::TryParse(s[2],value);
+
+	if(s[1]->ToLower() == "p"){
+		currentSettings->setPitchMotorPower(value);
+		referenceSettings->setPitchMotorPower(value);
+		resetGui();
+		updateGUI(currentSettings);
 
 	}
 	if(s[1]->ToLower() == "r"){
 		resetGui();
-		currentSettings->setRollPID(index,value);
+		currentSettings->setRollMotorPower(value);
+		referenceSettings->setRollMotorPower(value);
+		resetGui();
 		updateGUI(currentSettings);
 	}
+	
 }
 
 void serialUpdatePitchRoll(array<String^>^s){
@@ -1868,15 +1905,22 @@ void drawPointer(){
 	int offsetY = mouseY - centerY;
 	if(mouseX >= 0 && mouseX <= rectangleShape1->Width && mouseY >= 0 && mouseY <= rectangleShape1->Height){ // make sure cursor does not leave bounding rectangle
 	//Console::WriteLine(offsetX+","+offsetY);
+	double p = -1*offsetY/3.f;
+	double r = offsetX/3.f;
+	if(p<= 0.5 && p>= -0.5)
+		p = 0;
+	if(r<= 0.5 && r>= -0.5)
+		r = 0;
+	this->labelSetAnglePitch->Text = String::Format("{0:0.00}", p);
+	this->labelSetAngleRoll->Text = String::Format("{0:0.00}", r);	
+	pitchAngleSet = p;
+	rollAngleSet = r;
+	if(p == 0 && r == 0)
+		gBackBuffer->FillEllipse(gcnew SolidBrush(Color::Blue),rectangleShape1->Location.X+centerX-5,rectangleShape1->Location.Y+centerY-5,10,10);
+	else
 		gBackBuffer->FillEllipse(gcnew SolidBrush(Color::Black),Form1::PointToClient(Cursor->Position).X-3,Form1::PointToClient(Cursor->Position).Y-3,6,6);
-		Invalidate();
-		double p = -1*offsetY/3.f;
-		double r = offsetX/3.f;
-		this->labelSetAnglePitch->Text = String::Format("{0:0.00}", p);
-		this->labelSetAngleRoll->Text = String::Format("{0:0.00}", r);	
-		pitchAngleSet = p;
-		rollAngleSet = r;
-	}
+	Invalidate();
+}
 }
 
 void sendAngleSetCommand(){
@@ -1889,5 +1933,39 @@ void sendAngleSetCommand(){
 			SerialCom->sendCommand("AS " + String::Format("{0:0.00}", pitchAngleSet) + " " + String::Format("{0:0.00}", rollAngleSet));
 	}
 }
+
+void sendPIDs(){
+	for(int i=0; i<3; i++){
+		String ^pitchMessage = "SPID P " + Convert::ToString(i) +" " + Convert::ToString(currentSettings->getPitchPID(i));
+		String ^rollMessage = "SPID R " + Convert::ToString(i) +" " + Convert::ToString(currentSettings->getRollPID(i));
+		SerialCom->sendCommand(pitchMessage);
+		SerialCom->sendCommand(rollMessage);
+	}
+}
+
+void readPIDs(){
+	for(int i=0; i<3; i++){
+		String ^pitchMessage = "RPID P " + Convert::ToString(i);
+		String ^rollMessage = "RPID R " + Convert::ToString(i);
+		SerialCom->sendCommand(pitchMessage);
+		SerialCom->sendCommand(rollMessage);
+	}
+}
+
+void sendMotorPower(){
+	String ^pitchMessage = "SMP P " + Convert::ToString(currentSettings->getPitchMotorPower());
+	String ^rollMessage = "SMP R "  + Convert::ToString(currentSettings->getRollMotorPower());
+	SerialCom->sendCommand(pitchMessage);
+	SerialCom->sendCommand(rollMessage);
+}
+
+void readMotorPower(){
+		String ^pitchMessage = "RMP P";
+		String ^rollMessage = "RMP R";
+		SerialCom->sendCommand(pitchMessage);
+		SerialCom->sendCommand(rollMessage);
+}
+
+
 };
 }
