@@ -1,72 +1,15 @@
-//#include "Sensors.h"
 #include "Timer1.h"
-//#include "timer2.h"
 #include "TuskaEEPROM.h"
 #include "SerialCommand.h"
 #include "variables.h"
 #include "pinChangeInt.h"
 #include "IMU.h"
+#include "defines.h"
 #include <avr/pgmspace.h>
-
-#define PWM_32KHZ_PHASE
-#define PI 3.14159265         // approx of Pi which program uses.
-#define dt 1000              // dt in micros seconds
-#define GYROSCALE ((2380 * PI)/((32767.0f / 4.0f ) * 180.0f * 1000000.0f)) * 1 // A constant which converts raw data units to radians, determined experimentally
-#define RADTODEG  57.2957795  //constant for converting radians to degrees
-#define MOTORUPDATE_FREQ 1000                 // in Hz, 1000 is default
-#define LOOPUPDATE_FREQ MOTORUPDATE_FREQ     // loop control sample rate equals motor update rate
-//#define ACC_LPF_FACTOR 50   //magnitude of Acc data lowpass, filtering increases Acc lag
-#define GYROWEIGHT 0.98       // weight of gyro in complementary filter, out of 1 
-#define ACC_LPF_FACTOR 40
-
-#define DT_INT_MS (1000/MOTORUPDATE_FREQ)    // dT, integer, (ms)
-#define DT_INT_INV (MOTORUPDATE_FREQ)        // dT, integer, inverse, (Hz)
-
-#define PS_LPF_FACTOR 100
-
-#define RCPIN1 4
-
-static float *pitch, *roll;
-uint8_t freqCounter = 0;
-bool motorUpdate = false; 
-
-static int32_t pitchErrorSum = 0;
-static int32_t rollErrorSum = 0;
-static int32_t pitchErrorOld = 0;
-static int32_t rollErrorOld = 0;
-static int32_t rollInt = 0;
-static int32_t pitchInt = 0;
-
-
-static uint16_t calibratingG;         //used for initializing Acc calibration
-
-static long calSum;                   //used for gyro calibration      10
-static float gyroZero[3] = {0,0,0};   //stores values for gyro calibration
-static unsigned long pTime = 0;                // variable for determining dt of integration, it will overflow at approx 70min
-static float deltaGyroAngle[3] = {0,0,0}; //holds dø in degrees
-static float angleSum[3]; // unusued variable for debug remove later
-
-static uint16_t acc_1G;               // this is the 1G measured acceleration
-static uint16_t calibratingA = 0;     // the calibration is done in the main loop. Calibrating decreases at each cycle down to 0, then we enter in a normal mode.
-static int16_t  acc_25deg;            // not sure what it is yet but we need it something to do with small angle estimations.
-static float accelFloat[3] = {0,0,0};             // Converting int AccData to float AccData
-static float accLPF[3];               // for Acc lowpass implementation
-
-static float pitchAngle = 0;          // variable for final IMU pitch angle in deg
-static float rollAngle = 0;           // variable for final IMU roll angle in deg
-static float accVectorMagnitude = 0;
-
-static float loopRate = 0;            //used for determining approx IMU sampling rate
-static short loopCount = 1;
-long prevTime = 0;
-
-byte axis = 0;
-int8_t pwmSinMotor[256];
 
 TuskaEEPROM tEEPROM;
 SerialCommand SCMD;
 IMU imu;
-
 
 void setup(){
   Serial.begin(115200);
@@ -82,7 +25,7 @@ void setup(){
         
 	initSensors();
   //Serial.println("Calibrating MPU6050");
-  for(axis = 0; axis < 3; axis++){ //calculate offsets to zeros gyros 
+  for(uint8_t axis = 0; axis < 3; axis++){ //calculate offsets to zeros gyros 
     for(int i = 0; i < 400; i++){ //averages 400 readings for each axis
       Gyro_getADC();
       calSum += gyroADC[axis];
