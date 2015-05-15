@@ -35,8 +35,7 @@ void IMU::complimentaryFilter(){
 	pitchAngle -= deltaGyroAngle[GYRO_X_AXIS]; //riemann sum
     rollAngle += deltaGyroAngle[GYRO_Y_AXIS]; //riemann sum
 
-	if(accVectorMagnitude < UPPER_ACC_LIMIT && accVectorMagnitude > LOWER_ACC_LIMIT) // if !bullshit Acc vector must be <1.3g && >0.7g
-	{
+	if(accVectorMagnitude < UPPER_ACC_LIMIT && accVectorMagnitude > LOWER_ACC_LIMIT){ // if !bullshit Acc vector must be <1.3g && >0.7g
 		pitchAccel = atan2(accFiltered[ACC_Y_AXIS],accFiltered[ACC_Z_AXIS]) * RADTODEG; // determine the pitch of Acc vector using atan2 function
     	rollAccel = atan2(accFiltered[ACC_X_AXIS],accFiltered[ACC_Z_AXIS]) * RADTODEG;  // determine the roll of Acc vector using atan2 function
 
@@ -44,3 +43,4 @@ void IMU::complimentaryFilter(){
 		rollAngle = rollAngle * GYROWEIGHT + rollAccel * (1 - GYROWEIGHT);    // complementary filter 
 	}  
 }
+

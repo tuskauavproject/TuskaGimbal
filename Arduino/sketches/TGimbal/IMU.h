@@ -33,17 +33,12 @@ private:
 
 	int accSample[3];
 	float accFiltered[3];
-	
   	float deltaGyroAngle[3]; 
-
   	uint32_t previousTimeInMicroseconds,currentTimeInMicroseconds;
-
   	float gyroScaleFactor;
-
   	float pitchAccel,rollAccel;
   	float pitchAngle,rollAngle;
   	int accVectorMagnitude;
-
 };
 
 #endif 
