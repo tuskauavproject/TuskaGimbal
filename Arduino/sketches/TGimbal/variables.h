@@ -1,6 +1,6 @@
 #ifndef variables_h
 #define variables_h
-
+#include "defines.h"
 //MAIN
 static float pitchAngle = 0;          // variable for final IMU pitch angle in deg
 static float rollAngle = 0;           // variable for final IMU roll angle in deg
@@ -11,6 +11,7 @@ static float setAngleRoll = 0,setAngleRollLPF = 0;
 
 static uint32_t prevPrint = 0;
 static uint8_t subTick = 0;
+
 //SETUP 
 static uint16_t calibratingG;         //used for initializing Acc calibration
 static long calSum;                   //used for gyro calibration      10
@@ -41,9 +42,9 @@ static int8_t gyrDir[3] = {1,1,1};
 static uint8_t pitchMotorPower = 0;
 
 //RC DECODE
-volatile static byte stateRCInt = 0;    // a counter to see how many times the pin has changed
-volatile static uint32_t lastTimeRising = 0;
-volatile static uint16_t lastPulse = 0;
+static volatile byte stateRCInt = 0;    // a counter to see how many times the pin has changed
+static volatile uint32_t lastTimeRising = 0;
+static volatile uint16_t lastPulse = 0;
 static int16_t rcPulse1 = 0;
 
 //BRUSHLESS MOTOR CONTROL
