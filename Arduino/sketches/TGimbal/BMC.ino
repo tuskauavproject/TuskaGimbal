@@ -1,10 +1,4 @@
-//#include "definitions.h"
-
-/*
-
-
-
-https://sites.google.com/site/qeewiki/books/avr-guide/timers-on-the-atmega328
+/*https://sites.google.com/site/qeewiki/books/avr-guide/timers-on-the-atmega328
 
 // CS BITS
 CS02	CS01    CS00 	 DESCRIPTION
@@ -86,7 +80,8 @@ OCRxB                                                                      Outpu
 
 
 */
-#define N_SIN 256
+#include "defines.h"
+
 #define CC_FACTOR 32
 #define PWM_A_MOTOR1 OCR2A
 #define PWM_B_MOTOR1 OCR1B
