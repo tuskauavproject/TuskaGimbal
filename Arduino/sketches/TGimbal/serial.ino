@@ -1,11 +1,13 @@
 void configSerialCommands(){
-  SCMD.addCommand("SPID",setPID);
-  SCMD.addCommand("RPID",readPID);
-  SCMD.addCommand("SMP",setMotorPower);
-  SCMD.addCommand("RMP",readMotorPower);
-  SCMD.addCommand("AST",startAngleSend);
-  SCMD.addCommand("ASP",stopAngleSend);
-  SCMD.addCommand("AS",setAngleSet);
+	Serial.begin(SERIAL_BAUD_RATE);
+	SCMD.addCommand("SPID",setPID);
+	SCMD.addCommand("RPID",readPID);
+	SCMD.addCommand("SMP",setMotorPower);
+	SCMD.addCommand("RMP",readMotorPower);
+	SCMD.addCommand("AST",startAngleSend);
+	SCMD.addCommand("ASP",stopAngleSend);
+	SCMD.addCommand("AS",setAngleSet);
+	SCMD.addDefaultHandler(unrecognized);
 }
 
 void setPID(){
@@ -146,5 +148,9 @@ void setAngleSet(){
   
   setAnglePitch = atof(p);
   setAngleRoll = atof(r);
+}
+
+void unrecognized(){
+	Serial.println("COMMAND NOT RECOGNIZED");
 }
 
