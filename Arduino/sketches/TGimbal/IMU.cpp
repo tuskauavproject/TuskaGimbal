@@ -1,8 +1,10 @@
 //IMU.cpp
 #include "IMU.h"
 
-void IMU::calculate(){
-	
+void IMU::calculate(int16_t gyroADC[3],int16_t accADC[3]){
+	setGyroSample(gyroADC);
+	setAccSample(accADC);
+
 	accLowPassFilter();
 
   	currentTimeInMicroseconds = microsT1(); // set current time 
@@ -18,7 +20,7 @@ void IMU::lowPassFilter(int sampleValue,float* filteredValue, int lowPassFilterF
 
 void IMU::accLowPassFilter(){
 	for(uint8_t axis = 0;axis < 3; axis++)
-		lowPassFilter(accADC[axis],&accFiltered[axis],ACC_LPF_FACTOR);
+		lowPassFilter(accSample[axis],&accFiltered[axis],ACC_LPF_FACTOR);
 }
 
 void IMU::calculateAccVectorMagnitude(){
@@ -27,7 +29,7 @@ void IMU::calculateAccVectorMagnitude(){
 
 void IMU::calculateDeltaGyroAngle(){
   for (uint8_t axis = 0; axis < 3; axis++){
-  	deltaGyroAngle[axis] = (gyroADC[axis]) * gyrDir[axis]  * GYROSCALE * (currentTimeInMicroseconds-previousTimeInMicroseconds) * RADTODEG; // (dø/dt - calibration) * dt * constatnt 
+  	deltaGyroAngle[axis] = (gyroSample[axis]) * gyrDir[axis]  * GYROSCALE * (currentTimeInMicroseconds-previousTimeInMicroseconds) * RADTODEG; // (dø/dt - calibration) * dt * constatnt 
   }
 }
 
@@ -42,5 +44,15 @@ void IMU::complimentaryFilter(){
 		pitchAngle = pitchAngle * GYROWEIGHT + pitchAccel * (1 - GYROWEIGHT); // complementary filter 
 		rollAngle = rollAngle * GYROWEIGHT + rollAccel * (1 - GYROWEIGHT);    // complementary filter 
 	}  
+}
+
+void IMU::setGyroSample(int *x){
+	for(uint8_t axis = 0; axis < 3; axis++)
+		gyroSample[axis] = x[axis];
+}
+
+void IMU::setAccSample(int *x){
+	for(uint8_t axis = 0; axis < 3; axis++)
+		accSample[axis] = x[axis];
 }
 

@@ -29,7 +29,9 @@ void loop(){
   SCMD.readSerial();
 	Gyro_getADC(); // read raw gyro data
 	ACC_getADC(); // read raw accel data
-  imu.calculate();
+  imu.calculate(gyroADC,accADC);
+
+  Serial.println(pitchAngle);
 
   pitchInt = pitchAngle *1000;
   rollInt = rollAngle *1000;
