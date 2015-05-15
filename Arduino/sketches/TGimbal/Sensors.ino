@@ -365,3 +365,15 @@ void initSensors() {
   if (ACC) {ACC_init();acc_25deg = acc_1G * 0.423;}
   //f.I2C_INIT_DONE = 1;
 }
+
+void gyroCalibration(){
+  for(uint8_t axis = 0; axis < 3; axis++){ //calculate offsets to zeros gyros 
+    for(int i = 0; i < 400; i++){ //averages 400 readings for each axis
+      Gyro_getADC();
+      calSum += gyroADC[axis];
+      delay(1);
+    }
+    gyroZero[axis] = calSum/400.f;
+    calSum = 0;
+  }
+}
