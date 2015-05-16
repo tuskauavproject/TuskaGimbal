@@ -1,6 +1,7 @@
 #ifndef variables_h
 #define variables_h
 #include "defines.h"
+
 //MAIN
 static float pitchAngle = 0;          // variable for final IMU pitch angle in deg
 static float rollAngle = 0;           // variable for final IMU roll angle in deg

@@ -17,7 +17,7 @@ void setup(){
 
   tEEPROM.readPID(pitchPID,rollPID);
   tEEPROM.initReadMotorPower(&pitchMotorPower);
-        
+
 	initSensors();
   gyroCalibration();
   
@@ -29,9 +29,7 @@ void loop(){
   SCMD.readSerial();
 	Gyro_getADC(); // read raw gyro data
 	ACC_getADC(); // read raw accel data
-  imu.calculate(gyroADC,accADC);
-
-  Serial.println(pitchAngle);
+  imu.calculate(gyroADC,accADC,&pitchAngle,&rollAngle);
 
   pitchInt = pitchAngle *1000;
   rollInt = rollAngle *1000;
@@ -54,6 +52,7 @@ void loop(){
   MoveMotorPosSpeed(1, rollPIDOutput,90);
  
   if(subTick % SUBTICK_FREQ == (SUBTICK_FREQ-1)){
+    Serial.println(pitchAngle);
     if(outputAngle){
       Serial.print("PRA ");
       Serial.print(pitchAngle);

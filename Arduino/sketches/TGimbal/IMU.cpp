@@ -1,10 +1,11 @@
 //IMU.cpp
 #include "IMU.h"
 
-void IMU::calculate(int16_t gyroADC[3],int16_t accADC[3]){
+void IMU::calculate(int16_t gyroADC[3],int16_t accADC[3],float *pitch,float* roll){
 	setGyroSample(gyroADC);
 	setAccSample(accADC);
-
+	pitchAngle = *pitch;
+	rollAngle = *roll;
 	accLowPassFilter();
 
   	currentTimeInMicroseconds = microsT1(); // set current time 
@@ -12,6 +13,8 @@ void IMU::calculate(int16_t gyroADC[3],int16_t accADC[3]){
     previousTimeInMicroseconds = currentTimeInMicroseconds;
     calculateAccVectorMagnitude();
     complimentaryFilter();
+    *pitch = pitchAngle;
+    *roll = rollAngle;
 }
 
 void IMU::lowPassFilter(int sampleValue,float* filteredValue, int lowPassFilterFactor){

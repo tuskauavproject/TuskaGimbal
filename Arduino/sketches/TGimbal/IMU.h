@@ -8,25 +8,20 @@
 #include "defines.h"
 
 #define GYRO_X_AXIS 0
-#define GYRO_Y_AXIS 2
-#define GYRO_Z_AXIS 1
+#define GYRO_Y_AXIS 1
+#define GYRO_Z_AXIS 2
 
 #define ACC_X_AXIS 0
-#define ACC_Y_AXIS 2
-#define ACC_Z_AXIS 1
+#define ACC_Y_AXIS 1
+#define ACC_Z_AXIS 2
 
 #define UPPER_ACC_LIMIT 422500 //1.3g  = (1.3*500)^2 
 #define LOWER_ACC_LIMIT 122500 //0.7g  = (0.7*500)^2 
 
-typedef struct orientation
-{
-
-};
-
 class IMU
 {
 public:
-	void calculate(int16_t gyroADC[3],int16_t accADC[3]);
+	void calculate(int16_t gyroADC[3],int16_t accADC[3],float *pitch,float* roll);
 
 private:
 	void lowPassFilter(int sampleValue,float* filteredValue, int lowPassFilterFactor);
