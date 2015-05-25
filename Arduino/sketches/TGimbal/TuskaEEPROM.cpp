@@ -3,6 +3,7 @@
 #include "TuskaEEPROM.h"
 
 void TuskaEEPROM::configEpprom(){
+	EEPROM.setMaxAllowedWrites(800);
 	uint16_t currentAddress = 0;
 	for (uint16_t i = 0; i < NUMBER_EEPROM_ELEMENTS; i++){
 		char type[8];
@@ -211,7 +212,7 @@ void TuskaEEPROM::readPID(int32_t*PPID,int32_t*RPID){
 void TuskaEEPROM::initReadMotorPower(uint8_t* pwrP,uint8_t* pwrR){
    uint8_t pwr = readByte("MPowerP");
    *pwrP = pwr;
-   
+
    pwr = readByte("MPowerR");
    *pwrR = pwr;
 }
