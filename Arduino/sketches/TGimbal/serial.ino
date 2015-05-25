@@ -114,7 +114,7 @@ void setMotorPower(){
       if(aNumber >= 0 && aNumber <= 256)
         tEEPROM.writeByte("MPowerR",aNumber);
    }
-   tEEPROM.initReadMotorPower(&pitchMotorPower);
+   tEEPROM.initReadMotorPower(&pitchMotorPower,&rollMotorPower);
 }
 
 void readMotorPower(){
@@ -122,13 +122,15 @@ void readMotorPower(){
   axis = SCMD.next();
   if(axis[0] == 'P'){
     uint8_t mp = tEEPROM.readByte("MPowerP");
+    Serial.print("SMP P ");
     Serial.println(mp);
     pitchMotorPower = mp;
   }
   else if(axis[0] == 'R'){
     uint8_t mp = tEEPROM.readByte("MPowerR");
+    Serial.print("SMP R ");
     Serial.println(mp);
-    pitchMotorPower = mp; 
+    rollMotorPower = mp; 
   }
 }
 

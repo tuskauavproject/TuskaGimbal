@@ -39,7 +39,7 @@ class TuskaEEPROM
     float readFloat(char* name);
     
     void readPID(int32_t*PPID,int32_t*RPID); 
-    void initReadMotorPower(uint8_t*PWR);
+    void initReadMotorPower(uint8_t*PowerP,uint8_t*PowerR);
     
   private: 								// a more elegant method of epprom layout but could not get PROGMEM working with new avr-libc,
   	const char Float[6] PROGMEM = "Float";	// without PROGMEM it uses too much SRAM

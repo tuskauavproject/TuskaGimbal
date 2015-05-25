@@ -208,7 +208,10 @@ void TuskaEEPROM::readPID(int32_t*PPID,int32_t*RPID){
   Serial.println(PID[2]);*/
 }
 
-void TuskaEEPROM::initReadMotorPower(uint8_t* pwrP){
+void TuskaEEPROM::initReadMotorPower(uint8_t* pwrP,uint8_t* pwrR){
    uint8_t pwr = readByte("MPowerP");
    *pwrP = pwr;
+   
+   pwr = readByte("MPowerR");
+   *pwrR = pwr;
 }

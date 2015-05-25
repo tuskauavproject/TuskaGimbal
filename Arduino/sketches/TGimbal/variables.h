@@ -38,8 +38,8 @@ static int32_t pitchInt = 0;
 
 // CONFIG VARIABLES
 static int32_t pitchPID[3],rollPID[3]; 
-static uint8_t pitchMotorPower = 0;
-static uint8_t pitchMotorNumber = 0,rollMotorNumber = 1;
+static uint8_t pitchMotorPower,rollMotorPower;
+static uint8_t pitchMotorNumber = 1,rollMotorNumber = 0;
 
 //RC DECODE
 static volatile byte stateRCInt = 0;    // a counter to see how many times the pin has changed
