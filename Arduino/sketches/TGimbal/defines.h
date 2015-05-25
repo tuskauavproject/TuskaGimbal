@@ -8,7 +8,7 @@
 #define PWM_32KHZ_PHASE //PWM Frequency for motor control
 #define MOTORUPDATE_FREQ 1000 // in Hz, 1000 is default
 #define ACC_LPF_FACTOR 50   //magnitude of Acc data lowpass, filtering increases Acc lag
-#define GYROWEIGHT 0.98       // weight of gyro in complementary filter, out of 1 
+#define GYROWEIGHT 0       // weight of gyro in complementary filter, out of 1 
 #define PS_LPF_FACTOR 100
 #define SUBTICK_FREQ 8
 #define RCPIN1 4

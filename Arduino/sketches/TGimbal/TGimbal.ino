@@ -19,7 +19,9 @@ void setup(){
   tEEPROM.initReadMotorPower(&pitchMotorPower);
 
 	initSensors();
+  imu.setup();
   gyroCalibration();
+ 
   
   initBlController();
   initMotorStuff();
@@ -46,10 +48,10 @@ void loop(){
   setAngleRollLPF = setAngleRollLPF * (1.0f - (1.0f/PS_LPF_FACTOR)) + setAngleRoll * (1.0f/PS_LPF_FACTOR);
   
   int pitchPIDOutput = ComputePID(DT_INT_MS, DT_INT_INV,pitchInt, setAnglePitchLPF*1000, &pitchErrorSum, &pitchErrorOld,pitchP,pitchI,pitchD);//500,20,5,100 pwr,~10.7V
-  int rollPIDOutput = ComputePID(DT_INT_MS, DT_INT_INV,-1*rollInt, setAngleRollLPF*1000, &rollErrorSum, &rollErrorOld,rollP,rollI,rollD);//500,20,5,100 pwr,~10.7V
+  int rollPIDOutput = ComputePID(DT_INT_MS, DT_INT_INV,-1*rollInt, setAngleRollLPF*1000, &rollErrorSum, &rollErrorOld,400,0,0);//500,20,5,100 pwr,~10.7V
   
-  MoveMotorPosSpeed(0, pitchPIDOutput,60);
-  MoveMotorPosSpeed(1, rollPIDOutput,90);
+  MoveMotorPosSpeed(pitchMotorNumber, pitchPIDOutput,0);
+  MoveMotorPosSpeed(rollMotorNumber, rollPIDOutput,0);
  
   if(subTick % SUBTICK_FREQ == (SUBTICK_FREQ-1)){
     Serial.println(pitchAngle);

@@ -7,12 +7,16 @@
 #include "Timer1.h"
 #include "defines.h"
 
-#define GYRO_X_AXIS 0
-#define GYRO_Y_AXIS 1
+#define REVERSE_X_AXIS
+//#define REVERSE_Y_AXIS
+//#define REVERSE_Z_AXIS
+
+#define GYRO_X_AXIS 1
+#define GYRO_Y_AXIS 0
 #define GYRO_Z_AXIS 2
 
-#define ACC_X_AXIS 0
-#define ACC_Y_AXIS 1
+#define ACC_X_AXIS 1
+#define ACC_Y_AXIS 0
 #define ACC_Z_AXIS 2
 
 #define UPPER_ACC_LIMIT 422500 //1.3g  = (1.3*500)^2 
@@ -22,6 +26,7 @@ class IMU
 {
 public:
 	void calculate(int16_t gyroADC[3],int16_t accADC[3],float *pitch,float* roll);
+	void setup();
 
 private:
 	void lowPassFilter(int sampleValue,float* filteredValue, int lowPassFilterFactor);
@@ -33,6 +38,8 @@ private:
 	void setAccSample(int *x);
 
 	int accSample[3],gyroSample[3];
+	int8_t accDir[3] = {1,1,1};
+	int8_t gyrDir[3] = {1,1,1};
 	float accFiltered[3];
   	float deltaGyroAngle[3]; 
   	uint32_t previousTimeInMicroseconds,currentTimeInMicroseconds;
