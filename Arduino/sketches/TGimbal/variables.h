@@ -16,7 +16,7 @@ static uint8_t subTick = 0;
 //SETUP 
 static uint16_t calibratingG;         //used for initializing Acc calibration
 static long calSum;                   //used for gyro calibration      10
-static float gyroZero[3] = {0,0,0};   //stores values for gyro calibration
+static int gyroZero[3] = {0,0,0};   //stores values for gyro calibration
 
 // IMU
 static int16_t  gyroADC[3],accADC[3]; // RawGyroData,RawAccData,LPAccData
