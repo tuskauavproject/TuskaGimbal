@@ -28,6 +28,7 @@ void setup(){
 
 void loop(){
   SCMD.readSerial();
+
 	Gyro_getADC(); // read raw gyro data
 	ACC_getADC(); // read raw accel data
   imu.calculate(gyroADC,accADC,&pitchAngle,&rollAngle);
@@ -38,7 +39,7 @@ void loop(){
   int32_t pitchP = pitchPID[0];
   int32_t pitchI = pitchPID[1];
   int32_t pitchD = pitchPID[2];
-  
+ 
   int32_t rollP = rollPID[0];
   int32_t rollI = rollPID[1];
   int32_t rollD = rollPID[2];
@@ -64,8 +65,7 @@ void loop(){
   subTick++;
 }
 
-int32_t ComputePID(int32_t DTms, int32_t DTinv, int32_t in, int32_t setPoint, int32_t *errorSum, int32_t *errorOld, int32_t Kp, int16_t Ki, int32_t Kd)
-{
+int32_t ComputePID(int32_t DTms, int32_t DTinv, int32_t in, int32_t setPoint, int32_t *errorSum, int32_t *errorOld, int32_t Kp, int16_t Ki, int32_t Kd){
   int32_t error = setPoint - in;
   int32_t Ierr;
    
@@ -79,8 +79,7 @@ int32_t ComputePID(int32_t DTms, int32_t DTinv, int32_t in, int32_t setPoint, in
 
   out = out / 4096 / 8;
 
-  return out;
-  
+  return out; 
 }
 
 inline int32_t constrain_int32(int32_t x , int32_t l, int32_t h){
