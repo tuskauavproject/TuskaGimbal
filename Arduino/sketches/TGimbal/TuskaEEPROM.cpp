@@ -9,7 +9,6 @@ void TuskaEEPROM::configEpprom(){
 		char type[8];
 
 		strcpy(type,eppromSaveValuesList[i].type);
-		//Serial.println(type);
 		if(strcmp(type, "Byte")  == 0){
 			strcpy(eppromTable[i].name,eppromSaveValuesList[i].name);
 			strcpy(eppromTable[i].type,eppromSaveValuesList[i].type);
@@ -28,8 +27,6 @@ void TuskaEEPROM::configEpprom(){
 			eppromTable[i].address = currentAddress;
 			currentAddress += 4;
 		}	
-		//else
-			//Serial.println("Fail");
 	} 	
 }
 
@@ -53,7 +50,6 @@ int TuskaEEPROM::writeByte(char* findName,uint8_t data){
 		return 0;
 	}
 	else{
-		//Serial.print("Not Found");
 		return -1;
 	}
 }
@@ -78,7 +74,6 @@ int TuskaEEPROM::writeInt(char* findName,int data){
 		return 0;
 	}
 	else{
-		//Serial.print("Not Found");
 		return -1;
 	}
 }
@@ -103,7 +98,6 @@ int TuskaEEPROM::writeFloat(char* findName,float data){
 		return 0;
 	}
 	else{
-		//Serial.print("Not Found");
 		return -1;
 	}
 }
@@ -130,7 +124,6 @@ uint8_t TuskaEEPROM::readByte(char*findName){
 		return EEPROM.readByte(address);
 	}
 	else{
-		//Serial.print("Not Found");
 		return 0;
 	}
 }
@@ -154,7 +147,6 @@ int TuskaEEPROM::readInt(char*findName){
 		return EEPROM.readInt(address);
 	}
 	else{
-		//Serial.print("Not Found");
 		return 0;
 	}
 }
@@ -179,7 +171,6 @@ float TuskaEEPROM::readFloat(char*findName){
 		return EEPROM.readFloat(address);
 	}
 	else{
-		//Serial.print("Not Found");
 		return 0;
 	}
 }
@@ -200,13 +191,6 @@ void TuskaEEPROM::readPID(int32_t*PPID,int32_t*RPID){
   RPID[0] = p;
   RPID[1]= i;
   RPID[2] = d;
-  
-  /*Serial.print("Pitch\tP:");
-  Serial.print(PID[0]);
-  Serial.print("\tI:");
-  Serial.print(PID[1]);
-  Serial.print("\tD:");
-  Serial.println(PID[2]);*/
 }
 
 void TuskaEEPROM::initReadMotorPower(uint8_t* pwrP,uint8_t* pwrR){
