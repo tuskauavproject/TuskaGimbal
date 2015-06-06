@@ -1,6 +1,6 @@
 //IMU.cpp
 #include "IMU.h"
-
+//current execution time is 832 microSeconds
 void IMU::calculate(int16_t gyroADC[3],int16_t accADC[3],float *pitch,float* roll){
 	setGyroSample(gyroADC);
 	setAccSample(accADC);
@@ -14,7 +14,7 @@ void IMU::calculate(int16_t gyroADC[3],int16_t accADC[3],float *pitch,float* rol
     calculateAccVectorMagnitude();
     complimentaryFilter();
     *pitch = pitchAngle;
-    *roll = rollAngle;
+    *roll = rollAngle;   
 }
 
 void IMU::lowPassFilter(int sampleValue,float* filteredValue, int lowPassFilterFactor){
@@ -41,11 +41,11 @@ void IMU::complimentaryFilter(){
     rollAngle += deltaGyroAngle[GYRO_Y_AXIS]; //riemann sum
 
 	if(accVectorMagnitude < UPPER_ACC_LIMIT && accVectorMagnitude > LOWER_ACC_LIMIT){ // if !bullshit Acc vector must be <1.3g && >0.7g
-		pitchAccel = atan2(accFiltered[ACC_Y_AXIS] * accDir[ACC_Y_AXIS],accFiltered[ACC_Z_AXIS] * accDir[ACC_Z_AXIS]) * RADTODEG; // determine the pitch of Acc vector using atan2 function
-    	rollAccel = atan2(accFiltered[ACC_X_AXIS] * accDir[ACC_X_AXIS],accFiltered[ACC_Z_AXIS] * accDir[ACC_Z_AXIS]) * RADTODEG;  // determine the roll of Acc vector using atan2 function
-
-		pitchAngle = pitchAngle * GYROWEIGHT + pitchAccel * (1 - GYROWEIGHT); // complementary filter 
-		rollAngle = rollAngle * GYROWEIGHT + rollAccel * (1 - GYROWEIGHT);    // complementary filter 
+		pitchAccel = _atan2(accFiltered[ACC_Y_AXIS] * accDir[ACC_Y_AXIS],accFiltered[ACC_Z_AXIS] * accDir[ACC_Z_AXIS]); // determine the pitch of Acc vector using atan2 function
+    	rollAccel = _atan2(accFiltered[ACC_X_AXIS] * accDir[ACC_X_AXIS],accFiltered[ACC_Z_AXIS] * accDir[ACC_Z_AXIS]);  // determine the roll of Acc vector using atan2 function
+    	
+		pitchAngle = pitchAngle * GYROWEIGHT + pitchAccel * ACCEL_WEIGHT; // complementary filter 
+		rollAngle = rollAngle * GYROWEIGHT + rollAccel * ACCEL_WEIGHT;    // complementary filter 
 	}  
 }
 
@@ -67,6 +67,40 @@ void IMU::setup(){
 	#ifdef REVERSE_Y_AXIS
 		gyrDir[GYRO_Y_AXIS] = -1;
 	#endif
+
+	#ifdef REVERSE_Z_AXIS
+		gyrDir[GYRO_Z_AXIS] = -1;
+	#endif
+
+	#ifdef REVERSE_X_AXIS_ACC
+		accDir[ACC_X_AXIS] = -1;
+	#endif
+
+	#ifdef REVERSE_Y_AXIS_ACC
+		accDir[ACC_Y_AXIS] = -1;
+	#endif
+
+	#ifdef REVERSE_Z_AXIS_ACC
+		accDir[ACC_Z_AXIS] = -1;
+	#endif
 }
 
-
+int16_t IMU::_atan2(float y, float x){
+  #define fp_is_neg(val) ((((uint8_t*)&val)[3] & 0x80) != 0)
+  float z = y / x;
+  int16_t zi = abs(int16_t(z * 100)); 
+  int8_t y_neg = fp_is_neg(y);
+  if ( zi < 100 ){
+    if (zi > 10) 
+     z = z / (1.0f + 0.28f * z * z);
+   if (fp_is_neg(x)) {
+     if (y_neg) z -= PI;
+     else z += PI;
+   }
+  } else {
+   z = (PI / 2.0f) - z / (z * z + 0.28f);
+   if (y_neg) z -= PI;
+  }
+  z *= (180.0f / PI * 10); 
+  return z;
+}
