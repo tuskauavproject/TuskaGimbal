@@ -373,7 +373,16 @@ void gyroCalibration(){
       calSum += gyroADC[axis];
       delay(1);
     }
-    gyroZero[axis] = calSum/400.f;
+    int intZero = calSum/400;
+    float floatZero = calSum/400.f;
+    if(abs(floatZero - intZero) < 0.5)
+      gyroZero[axis] = intZero;
+    else
+      if(intZero > 0)
+        gyroZero[axis] = intZero + 1;
+      else
+        gyroZero[axis] = intZero - 1;
     calSum = 0;
   }
+  
 }
