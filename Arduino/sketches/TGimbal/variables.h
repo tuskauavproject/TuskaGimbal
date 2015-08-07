@@ -51,4 +51,8 @@ static int16_t rcPulse1 = 0;
 static int8_t pwmSinMotor[256];
 static uint8_t freqCounter = 0;
 static bool motorUpdate = false; 
+
+
+//Input Voltage
+static uint16_t inputMillivolts = 0; // voltage of batt input
 #endif

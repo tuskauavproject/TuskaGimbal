@@ -12,6 +12,7 @@ SerialCommand SCMD;
 IMU imu;
 
 void setup(){
+
   configSerialCommands();
   tEEPROM.configEpprom();
 
@@ -28,11 +29,9 @@ void setup(){
 
 void loop(){
   SCMD.readSerial();
-
 	Gyro_getADC(); // read raw gyro data
 	ACC_getADC(); // read raw accel data
   imu.calculate(gyroADC,accADC,&pitchAngle,&rollAngle);
-
   pitchInt = pitchAngle *1000;
   rollInt = rollAngle *1000;
   
@@ -46,14 +45,28 @@ void loop(){
   
   setAnglePitchLPF = setAnglePitchLPF * (1.0f - (1.0f/PS_LPF_FACTOR)) + setAnglePitch * (1.0f/PS_LPF_FACTOR);
   setAngleRollLPF = setAngleRollLPF * (1.0f - (1.0f/PS_LPF_FACTOR)) + setAngleRoll * (1.0f/PS_LPF_FACTOR);
-  
+
   int pitchPIDOutput = ComputePID(DT_INT_MS, DT_INT_INV,pitchInt, setAnglePitchLPF*1000, &pitchErrorSum, &pitchErrorOld,pitchP,pitchI,pitchD);//500,20,5,100 pwr,~10.7V
   int rollPIDOutput = ComputePID(DT_INT_MS, DT_INT_INV,rollInt, setAngleRollLPF*1000, &rollErrorSum, &rollErrorOld,rollP,rollI,rollD);//500,20,5,100 pwr,~10.7V
+
+  #ifdef ENABLE_VOLTAGE_COMPENSATION
+    int correctedPitchMotorPower =(int) (MAX_VOLTAGE/(float)inputMillivolts * pitchMotorPower); 
+    int correctedRollMotorPower = (int) (MAX_VOLTAGE/(float)inputMillivolts * rollMotorPower);
+
+    MoveMotorPosSpeed(pitchMotorNumber, pitchPIDOutput,correctedPitchMotorPower);
+    MoveMotorPosSpeed(rollMotorNumber, rollPIDOutput,correctedRollMotorPower);
+    
+  #else
+    MoveMotorPosSpeed(pitchMotorNumber, pitchPIDOutput,pitchMotorPower);
+    MoveMotorPosSpeed(rollMotorNumber, rollPIDOutput,rollMotorPower);
+  #endif
   
   MoveMotorPosSpeed(pitchMotorNumber, pitchPIDOutput,pitchMotorPower);
   MoveMotorPosSpeed(rollMotorNumber, rollPIDOutput,rollMotorPower);
  
   if(subTick % SUBTICK_FREQ == (SUBTICK_FREQ-1)){
+    inputMillivolts = analogRead(A0) * BATT_INPUT_ADC_TO_MILLI_VOLTS;
+
     if(outputAngle){
       Serial.print("PRA ");
       Serial.print(pitchAngle);
@@ -70,7 +83,8 @@ int32_t ComputePID(int32_t DTms, int32_t DTinv, int32_t in, int32_t setPoint, in
   int32_t Ierr;
    
   Ierr = error * Ki * DTms;
-  Ierr = constrain_int32(Ierr, -(int32_t)1000*100, (int32_t)1000*100);
+  Ierr = constrain_int32(Ierr, -(int32_t)1000000, (int32_t)1000000);
+
   *errorSum += Ierr;
  
   /*Compute PID Output*/
