@@ -49,6 +49,8 @@ void loop(){
   int pitchPIDOutput = ComputePID(DT_INT_MS, DT_INT_INV,pitchInt, setAnglePitchLPF*1000, &pitchErrorSum, &pitchErrorOld,pitchP,pitchI,pitchD);//500,20,5,100 pwr,~10.7V
   int rollPIDOutput = ComputePID(DT_INT_MS, DT_INT_INV,rollInt, setAngleRollLPF*1000, &rollErrorSum, &rollErrorOld,rollP,rollI,rollD);//500,20,5,100 pwr,~10.7V
 
+  //Serial.println(rollPIDOutput);
+
   #ifdef ENABLE_VOLTAGE_COMPENSATION
     int correctedPitchMotorPower =(int) (MAX_VOLTAGE/(float)inputMillivolts * pitchMotorPower); 
     int correctedRollMotorPower = (int) (MAX_VOLTAGE/(float)inputMillivolts * rollMotorPower);
@@ -83,7 +85,8 @@ int32_t ComputePID(int32_t DTms, int32_t DTinv, int32_t in, int32_t setPoint, in
   int32_t Ierr;
    
   Ierr = error * Ki * DTms;
-  Ierr = constrain_int32(Ierr, -(int32_t)1000000, (int32_t)1000000);
+
+  Ierr = constrain_int32(Ierr, -(int32_t)500000, (int32_t)500000);
 
   *errorSum += Ierr;
  
@@ -104,4 +107,8 @@ inline int32_t constrain_int32(int32_t x , int32_t l, int32_t h){
   } else {
     return x;
   }
+}
+
+void pin7Changed(){
+  Serial.println("Changed");
 }
