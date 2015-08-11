@@ -32,8 +32,9 @@ void loop(){
 	Gyro_getADC(); // read raw gyro data
 	ACC_getADC(); // read raw accel data
   imu.calculate(gyroADC,accADC,&pitchAngle,&rollAngle);
-  pitchInt = pitchAngle *1000;
-  rollInt = rollAngle *1000;
+  
+  pitchAngularVelocity = gyroADC[GYRO_X_AXIS];
+  rollAngularVelocity = gyroADC[GYRO_Y_AXIS];
   
   int32_t pitchP = pitchPID[0];
   int32_t pitchI = pitchPID[1];
@@ -46,10 +47,11 @@ void loop(){
   setAnglePitchLPF = setAnglePitchLPF * (1.0f - (1.0f/PS_LPF_FACTOR)) + setAnglePitch * (1.0f/PS_LPF_FACTOR);
   setAngleRollLPF = setAngleRollLPF * (1.0f - (1.0f/PS_LPF_FACTOR)) + setAngleRoll * (1.0f/PS_LPF_FACTOR);
 
-  int pitchPIDOutput = ComputePID(DT_INT_MS, DT_INT_INV,pitchInt, setAnglePitchLPF*1000, &pitchErrorSum, &pitchErrorOld,pitchP,pitchI,pitchD);//500,20,5,100 pwr,~10.7V
-  int rollPIDOutput = ComputePID(DT_INT_MS, DT_INT_INV,rollInt, setAngleRollLPF*1000, &rollErrorSum, &rollErrorOld,rollP,rollI,rollD);//500,20,5,100 pwr,~10.7V
+  desiredAngularVelocityPitch = 2000 * (pitchAngle - setAnglePitchLPF);
+  desiredAngularVelocityRoll = 2000 * (-rollAngle - setAngleRollLPF);
 
-  //Serial.println(rollPIDOutput);
+  int pitchPIDOutput = ComputePID(DT_INT_MS, DT_INT_INV,pitchInt, desiredAngularVelocityPitch, &pitchErrorSum, &pitchErrorOld,pitchP,pitchI,pitchD);//500,20,5,100 pwr,~10.7V
+  int rollPIDOutput = ComputePID(DT_INT_MS, DT_INT_INV,rollInt, desiredAngularVelocityRoll, &rollErrorSum, &rollErrorOld,rollP,rollI,rollD);//500,20,5,100 pwr,~10.7V
 
   #ifdef ENABLE_VOLTAGE_COMPENSATION
     int correctedPitchMotorPower =(int) (MAX_VOLTAGE/(float)inputMillivolts * pitchMotorPower); 

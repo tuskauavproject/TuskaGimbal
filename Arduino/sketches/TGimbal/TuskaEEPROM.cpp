@@ -200,3 +200,11 @@ void TuskaEEPROM::initReadMotorPower(uint8_t* pwrP,uint8_t* pwrR){
    pwr = readByte("MPowerR");
    *pwrR = pwr;
 }
+
+void TuskaEEPROM::initReadStab(int16_t* stabP,int16_t* stabR){
+	uint16_t stab = readInt("StabP");
+	*stabP = stab;
+
+	stab = readInt("StabR");
+	*stabR = stab;
+}
