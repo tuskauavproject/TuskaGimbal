@@ -18,6 +18,7 @@ void setup(){
 
   tEEPROM.readPID(pitchPID,rollPID);
   tEEPROM.initReadMotorPower(&pitchMotorPower,&rollMotorPower);
+  tEEPROM.initReadStabilize(&stabilizePitch,&stabilizeRoll);
 
 	initSensors();
   imu.setup();
@@ -47,8 +48,8 @@ void loop(){
   setAnglePitchLPF = setAnglePitchLPF * (1.0f - (1.0f/PS_LPF_FACTOR)) + setAnglePitch * (1.0f/PS_LPF_FACTOR);
   setAngleRollLPF = setAngleRollLPF * (1.0f - (1.0f/PS_LPF_FACTOR)) + setAngleRoll * (1.0f/PS_LPF_FACTOR);
 
-  desiredAngularVelocityPitch = 2000 * (pitchAngle - setAnglePitchLPF);
-  desiredAngularVelocityRoll = 2000 * (-rollAngle - setAngleRollLPF);
+  desiredAngularVelocityPitch = stabilizePitch * (pitchAngle - setAnglePitchLPF);
+  desiredAngularVelocityRoll = stabilizeRoll * (-rollAngle - setAngleRollLPF);
 
   int pitchPIDOutput = ComputePID(DT_INT_MS, DT_INT_INV,pitchInt, desiredAngularVelocityPitch, &pitchErrorSum, &pitchErrorOld,pitchP,pitchI,pitchD);//500,20,5,100 pwr,~10.7V
   int rollPIDOutput = ComputePID(DT_INT_MS, DT_INT_INV,rollInt, desiredAngularVelocityRoll, &rollErrorSum, &rollErrorOld,rollP,rollI,rollD);//500,20,5,100 pwr,~10.7V

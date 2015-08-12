@@ -170,7 +170,7 @@ void setStabilize(){
       	if(aNumber >= 0)
     	tEEPROM.writeInt("StabR",aNumber);
    	}
-   	tEEPROM.initReadStab(&stabilizePitch,&stabilizeRoll);
+   	tEEPROM.initReadStabilize(&stabilizePitch,&stabilizeRoll);
 }
 
 void readStabilize(){

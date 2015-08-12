@@ -40,7 +40,7 @@ class TuskaEEPROM
     
     void readPID(int32_t*PPID,int32_t*RPID); 
     void initReadMotorPower(uint8_t*PowerP,uint8_t*PowerR);
-    void initReadStab(int16_t* stabP,int16_t* stabR);
+    void initReadStabilize(int16_t* stabP,int16_t* stabR);
     
   private: 								// a more elegant method of epprom layout but could not get PROGMEM working with new avr-libc,
   	const char Float[6] PROGMEM = "Float";	// without PROGMEM it uses too much SRAM
