@@ -36,7 +36,7 @@ void loop(){
   
   pitchAngularVelocity = gyroADC[GYRO_X_AXIS];
   rollAngularVelocity = gyroADC[GYRO_Y_AXIS];
-  
+
   int32_t pitchP = pitchPID[0];
   int32_t pitchI = pitchPID[1];
   int32_t pitchD = pitchPID[2];
@@ -49,11 +49,10 @@ void loop(){
   setAngleRollLPF = setAngleRollLPF * (1.0f - (1.0f/PS_LPF_FACTOR)) + setAngleRoll * (1.0f/PS_LPF_FACTOR);
 
   desiredAngularVelocityPitch = stabilizePitch * (pitchAngle - setAnglePitchLPF);
-  desiredAngularVelocityRoll = stabilizeRoll * (-rollAngle - setAngleRollLPF);
+  desiredAngularVelocityRoll = stabilizeRoll * (-1*rollAngle - setAngleRollLPF);
 
-  int pitchPIDOutput = ComputePID(DT_INT_MS, DT_INT_INV,pitchInt, desiredAngularVelocityPitch, &pitchErrorSum, &pitchErrorOld,pitchP,pitchI,pitchD);//500,20,5,100 pwr,~10.7V
-  int rollPIDOutput = ComputePID(DT_INT_MS, DT_INT_INV,rollInt, desiredAngularVelocityRoll, &rollErrorSum, &rollErrorOld,rollP,rollI,rollD);//500,20,5,100 pwr,~10.7V
-
+  int pitchPIDOutput = ComputePID(DT_INT_MS, DT_INT_INV,pitchAngularVelocity, desiredAngularVelocityPitch, &pitchErrorSum, &pitchErrorOld,pitchP,pitchI,pitchD);//500,20,5,100 pwr,~10.7V
+  int rollPIDOutput = ComputePID(DT_INT_MS, DT_INT_INV,rollAngularVelocity, desiredAngularVelocityRoll, &rollErrorSum, &rollErrorOld,rollP,rollI,rollD);//500,20,5,100 pwr,~10.7V
   #ifdef ENABLE_VOLTAGE_COMPENSATION
     int correctedPitchMotorPower =(int) (MAX_VOLTAGE/(float)inputMillivolts * pitchMotorPower); 
     int correctedRollMotorPower = (int) (MAX_VOLTAGE/(float)inputMillivolts * rollMotorPower);
