@@ -5,7 +5,7 @@
 #include "EEPROMex.h"
 #include <avr/pgmspace.h>
 
-#define NUMBER_EEPROM_ELEMENTS 10
+#define NUMBER_EEPROM_ELEMENTS 12
 
 typedef struct{
 	char name[8];
@@ -55,6 +55,8 @@ class TuskaEEPROM
 		{"MPowerR","Byte"},
 		{"StabP","Int"},
 		{"StabR","Int"}
+		//{"GW","Float"},
+		//{"ALP","Int"}
 
 	};
 	eepromBlock eppromTable[NUMBER_EEPROM_ELEMENTS] PROGMEM;

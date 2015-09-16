@@ -9,7 +9,7 @@ void configSerialCommands(){
 	SCMD.addCommand("AS",setAngleSet);
 	SCMD.addCommand("SS",setStabilize);
 	SCMD.addCommand("RS",readStabilize);
-  SCMD.addCommand("RV",readVoltage);
+  //SCMD.addCommand("RV",readVoltage);
 	SCMD.addDefaultHandler(unrecognized);
 }
 
