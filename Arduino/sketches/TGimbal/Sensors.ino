@@ -328,7 +328,7 @@ void Gyro_init() {
   delay(5);
   i2c_writeReg(MPU6050_ADDRESS, 0x6B, 0x03);             //PWR_MGMT_1    -- SLEEP 0; CYCLE 0; TEMP_DIS 0; CLKSEL 3 (PLL with Z Gyro reference)
   i2c_writeReg(MPU6050_ADDRESS, 0x1A, MPU6050_DLPF_CFG); //CONFIG        -- EXT_SYNC_SET 0 (disable input pin for data sync) ; default DLPF_CFG = 0 => ACC bandwidth = 260Hz  GYRO bandwidth = 256Hz)
-  i2c_writeReg(MPU6050_ADDRESS, 0x1B, 0x18);             //GYRO_CONFIG   -- FS_SEL = 3: Full scale set to 2000 deg/sec
+  i2c_writeReg(MPU6050_ADDRESS, 0x1B, 0x08);             //GYRO_CONFIG   -- FS_SEL = 1: Full scale set to 500 deg/sec
   // enable I2C bypass for AUX I2C
 }
 
