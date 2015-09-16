@@ -22,8 +22,15 @@ void setup(){
 
 	initSensors();
   imu.setup();
-  gyroCalibration();
+  delay(200);// makes sure sensors have time to be setup before they are calibrated 
   
+  do{
+    delay(1000);
+    Serial.println("Calibrating Gyro; Hold Still"); 
+  } while(!gyroCalibration());
+
+  printCalibrationSucessful();
+
   initBlController();
   initMotorStuff();
 }
@@ -33,6 +40,7 @@ void loop(){
 	Gyro_getADC(); // read raw gyro data
 	ACC_getADC(); // read raw accel data
   imu.calculate(gyroADC,accADC,&pitchAngle,&rollAngle);
+
   
   pitchAngularVelocity = gyroADC[GYRO_X_AXIS];
   rollAngularVelocity = gyroADC[GYRO_Y_AXIS];
@@ -67,10 +75,11 @@ void loop(){
   
   MoveMotorPosSpeed(pitchMotorNumber, pitchPIDOutput,pitchMotorPower);
   MoveMotorPosSpeed(rollMotorNumber, rollPIDOutput,rollMotorPower);
- 
+
+  
+
   if(subTick % SUBTICK_FREQ == (SUBTICK_FREQ-1)){
     inputMillivolts = analogRead(A0) * BATT_INPUT_ADC_TO_MILLI_VOLTS;
-
     if(outputAngle){
       Serial.print("PRA ");
       Serial.print(pitchAngle);
@@ -78,6 +87,7 @@ void loop(){
       Serial.println(rollAngle);
       subTick = 0;
     }
+
   }
   subTick++;
 }
@@ -88,7 +98,7 @@ int32_t ComputePID(int32_t DTms, int32_t DTinv, int32_t in, int32_t setPoint, in
    
   Ierr = error * Ki * DTms;
 
-  Ierr = constrain_int32(Ierr, -(int32_t)500000, (int32_t)500000);
+  Ierr = constrain_int32(Ierr, -(int32_t)1000000, (int32_t)1000000);
 
   *errorSum += Ierr;
  
@@ -109,8 +119,4 @@ inline int32_t constrain_int32(int32_t x , int32_t l, int32_t h){
   } else {
     return x;
   }
-}
-
-void pin7Changed(){
-  Serial.println("Changed");
 }
