@@ -7,6 +7,9 @@ void configSerialCommands(){
 	SCMD.addCommand("AST",startAngleSend);
 	SCMD.addCommand("ASP",stopAngleSend);
 	SCMD.addCommand("AS",setAngleSet);
+	SCMD.addCommand("SS",setStabilize);
+	SCMD.addCommand("RS",readStabilize);
+  //SCMD.addCommand("RV",readVoltage);
 	SCMD.addDefaultHandler(unrecognized);
 }
 
@@ -150,6 +153,47 @@ void setAngleSet(){
   
   setAnglePitch = atof(p);
   setAngleRoll = atof(r);
+}
+
+void setStabilize(){
+	char *axis;
+  	char *val;
+  	int aNumber;
+  
+  	axis = SCMD.next();
+  	val = SCMD.next();
+  	aNumber = atoi(val);
+  	if(axis[0] == 'P'){
+      	if(aNumber >= 0)
+        tEEPROM.writeInt("StabP",aNumber);
+  	}
+   	else if(axis[0] == 'R'){
+      	if(aNumber >= 0)
+    	tEEPROM.writeInt("StabR",aNumber);
+   	}
+   	tEEPROM.initReadStabilize(&stabilizePitch,&stabilizeRoll);
+}
+
+void readStabilize(){
+	char *axis;
+  	axis = SCMD.next();
+  	if(axis[0] == 'P'){
+    	int ss = tEEPROM.readInt("StabP");
+    	Serial.print("SS P ");
+    	Serial.println(ss);
+    	stabilizePitch = ss;
+  	}
+  	else if(axis[0] == 'R'){
+   		int ss = tEEPROM.readInt("StabR");
+    	Serial.print("SS R ");
+    	Serial.println(ss);
+    	stabilizeRoll = ss; 
+  	}
+}
+
+void readVoltage(){
+  Serial.print("BV ");
+  Serial.println(inputMillivolts);
 }
 
 void unrecognized(){

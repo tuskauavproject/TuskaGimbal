@@ -6,6 +6,12 @@
 static float pitchAngle = 0;          // variable for final IMU pitch angle in deg
 static float rollAngle = 0;           // variable for final IMU roll angle in deg
 
+static int16_t pitchAngularVelocity = 0; //rate of rotation given by raw gyro
+static int16_t rollAngularVelocity = 0;
+
+static int16_t desiredAngularVelocityPitch = 0;
+static int16_t desiredAngularVelocityRoll = 0;
+
 static bool outputAngle = false;
 static float setAnglePitch = 0,setAnglePitchLPF = 0;
 static float setAngleRoll = 0,setAngleRollLPF = 0;
@@ -40,6 +46,7 @@ static int32_t pitchInt = 0;
 static int32_t pitchPID[3],rollPID[3]; 
 static uint8_t pitchMotorPower,rollMotorPower;
 static uint8_t pitchMotorNumber = 1,rollMotorNumber = 0;
+static int16_t stabilizePitch=0,stabilizeRoll=0;
 
 //RC DECODE
 static volatile byte stateRCInt = 0;    // a counter to see how many times the pin has changed

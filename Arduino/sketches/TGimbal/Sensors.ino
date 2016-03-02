@@ -328,7 +328,7 @@ void Gyro_init() {
   delay(5);
   i2c_writeReg(MPU6050_ADDRESS, 0x6B, 0x03);             //PWR_MGMT_1    -- SLEEP 0; CYCLE 0; TEMP_DIS 0; CLKSEL 3 (PLL with Z Gyro reference)
   i2c_writeReg(MPU6050_ADDRESS, 0x1A, MPU6050_DLPF_CFG); //CONFIG        -- EXT_SYNC_SET 0 (disable input pin for data sync) ; default DLPF_CFG = 0 => ACC bandwidth = 260Hz  GYRO bandwidth = 256Hz)
-  i2c_writeReg(MPU6050_ADDRESS, 0x1B, 0x18);             //GYRO_CONFIG   -- FS_SEL = 3: Full scale set to 2000 deg/sec
+  i2c_writeReg(MPU6050_ADDRESS, 0x1B, 0x08);             //GYRO_CONFIG   -- FS_SEL = 1: Full scale set to 500 deg/sec
   // enable I2C bypass for AUX I2C
 }
 
@@ -366,23 +366,47 @@ void initSensors() {
   //f.I2C_INIT_DONE = 1;
 }
 
-void gyroCalibration(){
-  for(uint8_t axis = 0; axis < 3; axis++){ //calculate offsets to zeros gyros 
-    for(int i = 0; i < 400; i++){ //averages 400 readings for each axis
-      Gyro_getADC();
-      calSum += gyroADC[axis];
-      delay(1);
-    }
-    int intZero = calSum/400;
-    float floatZero = calSum/400.f;
-    if(abs(floatZero - intZero) < 0.5)
-      gyroZero[axis] = intZero;
-    else
-      if(intZero > 0)
-        gyroZero[axis] = intZero + 1;
+bool gyroCalibration(){
+    for(uint8_t axis = 0; axis < 3; axis++){ //calculate offsets to zeros gyros 
+      for(int i = 0; i < 400; i++){ //averages 400 readings for each axis
+        Gyro_getADC();
+        ACC_getADC();
+
+        uint32_t accMagnitude = sqrt(pow(accADC[0],2) + pow(accADC[1],2) + pow(accADC[2],2));
+
+        if(accMagnitude > 560 || accMagnitude < 460){
+          Serial.println("Invalid Calibration");
+          Serial.println(accMagnitude);
+          gyroZero[axis] = 0;
+          return false;
+        }
+          
+        if(abs(gyroADC[axis]) > 100){
+          Serial.println("Invalid Calibration");
+          gyroZero[axis] = 0;
+          return false;
+        }
+
+        calSum += gyroADC[axis];
+        delay(1);
+      }
+      int intZero = calSum/400;
+      float floatZero = calSum/400.f;
+      if(abs(floatZero - intZero) < 0.5)
+        gyroZero[axis] = intZero;
       else
-        gyroZero[axis] = intZero - 1;
-    calSum = 0;
-  }
-  
+        if(intZero > 0)
+          gyroZero[axis] = intZero + 1;
+        else
+          gyroZero[axis] = intZero - 1;
+      calSum = 0;
+    }
+    return true;
+}
+
+void printCalibrationSucessful(){
+  Serial.print("Calibration Sucessful:");
+  Serial.print(gyroZero[0]);Serial.print(",");
+  Serial.print(gyroZero[1]);Serial.print(",");
+  Serial.println(gyroZero[2]);
 }

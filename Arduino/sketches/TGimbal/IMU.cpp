@@ -32,18 +32,24 @@ void IMU::calculateAccVectorMagnitude(){
 
 void IMU::calculateDeltaGyroAngle(){
   for (uint8_t axis = 0; axis < 3; axis++){
-  	deltaGyroAngle[axis] = (gyroSample[axis]) * gyrDir[axis]  * GYROSCALE * (currentTimeInMicroseconds-previousTimeInMicroseconds) * RADTODEG; // (dø/dt - calibration) * dt * constatnt 
+  	deltaGyroAngle[axis] = (gyroSample[axis]) * gyrDir[axis]  * GYROSCALE * (currentTimeInMicroseconds-previousTimeInMicroseconds) * RADTODEG * 0.875; // (dø/dt - calibration) * dt * constatnt 
   }
 }
 
 void IMU::complimentaryFilter(){
+	gyroPitchSum += deltaGyroAngle[GYRO_X_AXIS];
 	pitchAngle += deltaGyroAngle[GYRO_X_AXIS]; //riemann sum
     rollAngle += deltaGyroAngle[GYRO_Y_AXIS]; //riemann sum
 
-	if(accVectorMagnitude < UPPER_ACC_LIMIT && accVectorMagnitude > LOWER_ACC_LIMIT){ // if !bullshit Acc vector must be <1.3g && >0.7g
+	if(accVectorMagnitude < UPPER_ACC_LIMIT && accVectorMagnitude > LOWER_ACC_LIMIT){ //Acc vector must be <1.3g && >0.7g, else discard reading
 		pitchAccel = _atan2(accFiltered[ACC_Y_AXIS] * accDir[ACC_Y_AXIS],accFiltered[ACC_Z_AXIS] * accDir[ACC_Z_AXIS]); // determine the pitch of Acc vector using atan2 function
-    	rollAccel = _atan2(accFiltered[ACC_X_AXIS] * accDir[ACC_X_AXIS],accFiltered[ACC_Z_AXIS] * accDir[ACC_Z_AXIS]);  // determine the roll of Acc vector using atan2 function
+    	rollAccel = _atan2(accFiltered[ACC_X_AXIS] * accDir[ACC_X_AXIS],sqrt(pow(accFiltered[ACC_Y_AXIS],2) + pow(accFiltered[ACC_Z_AXIS],2)));  // determine the roll of Acc vector using atan2 function
     	
+    	if(pitchAccel == 0) // there is a bug where sometimes _atan2 returns 0 this is a crude fix but the problem is rare
+    		pitchAccel == pitchAngle * 10;
+    	if(rollAccel == 0)
+    		rollAngle == rollAngle * 10;
+    		
 		pitchAngle = pitchAngle * GYROWEIGHT + pitchAccel * ACCEL_WEIGHT; // complementary filter 
 		rollAngle = rollAngle * GYROWEIGHT + rollAccel * ACCEL_WEIGHT;    // complementary filter 
 	}  

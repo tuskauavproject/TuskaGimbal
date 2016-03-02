@@ -49,6 +49,7 @@ private:
 	int8_t gyrDir[3] = {1,1,1};
 	float accFiltered[3];
   	float deltaGyroAngle[3]; 
+  	float gyroPitchSum;
   	uint32_t previousTimeInMicroseconds,currentTimeInMicroseconds;
   	float gyroScaleFactor;
   	float pitchAccel,rollAccel;

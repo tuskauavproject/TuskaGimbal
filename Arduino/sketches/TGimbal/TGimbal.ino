@@ -18,11 +18,19 @@ void setup(){
 
   tEEPROM.readPID(pitchPID,rollPID);
   tEEPROM.initReadMotorPower(&pitchMotorPower,&rollMotorPower);
+  tEEPROM.initReadStabilize(&stabilizePitch,&stabilizeRoll);
 
 	initSensors();
   imu.setup();
-  gyroCalibration();
+  delay(200);// makes sure sensors have time to be setup before they are calibrated 
   
+  do{
+    delay(1000);
+    Serial.println("Calibrating Gyro; Hold Still"); 
+  } while(!gyroCalibration());
+
+  printCalibrationSucessful();
+
   initBlController();
   initMotorStuff();
 }
@@ -32,9 +40,11 @@ void loop(){
 	Gyro_getADC(); // read raw gyro data
 	ACC_getADC(); // read raw accel data
   imu.calculate(gyroADC,accADC,&pitchAngle,&rollAngle);
-  pitchInt = pitchAngle *1000;
-  rollInt = rollAngle *1000;
+
   
+  pitchAngularVelocity = gyroADC[GYRO_X_AXIS];
+  rollAngularVelocity = gyroADC[GYRO_Y_AXIS];
+
   int32_t pitchP = pitchPID[0];
   int32_t pitchI = pitchPID[1];
   int32_t pitchD = pitchPID[2];
@@ -46,11 +56,11 @@ void loop(){
   setAnglePitchLPF = setAnglePitchLPF * (1.0f - (1.0f/PS_LPF_FACTOR)) + setAnglePitch * (1.0f/PS_LPF_FACTOR);
   setAngleRollLPF = setAngleRollLPF * (1.0f - (1.0f/PS_LPF_FACTOR)) + setAngleRoll * (1.0f/PS_LPF_FACTOR);
 
-  int pitchPIDOutput = ComputePID(DT_INT_MS, DT_INT_INV,pitchInt, setAnglePitchLPF*1000, &pitchErrorSum, &pitchErrorOld,pitchP,pitchI,pitchD);//500,20,5,100 pwr,~10.7V
-  int rollPIDOutput = ComputePID(DT_INT_MS, DT_INT_INV,rollInt, setAngleRollLPF*1000, &rollErrorSum, &rollErrorOld,rollP,rollI,rollD);//500,20,5,100 pwr,~10.7V
+  desiredAngularVelocityPitch = stabilizePitch * (pitchAngle - setAnglePitchLPF);
+  desiredAngularVelocityRoll = stabilizeRoll * (-1*rollAngle - setAngleRollLPF);
 
-  //Serial.println(rollPIDOutput);
-
+  int pitchPIDOutput = ComputePID(DT_INT_MS, DT_INT_INV,pitchAngularVelocity, desiredAngularVelocityPitch, &pitchErrorSum, &pitchErrorOld,pitchP,pitchI,pitchD);//500,20,5,100 pwr,~10.7V
+  int rollPIDOutput = ComputePID(DT_INT_MS, DT_INT_INV,rollAngularVelocity, desiredAngularVelocityRoll, &rollErrorSum, &rollErrorOld,rollP,rollI,rollD);//500,20,5,100 pwr,~10.7V
   #ifdef ENABLE_VOLTAGE_COMPENSATION
     int correctedPitchMotorPower =(int) (MAX_VOLTAGE/(float)inputMillivolts * pitchMotorPower); 
     int correctedRollMotorPower = (int) (MAX_VOLTAGE/(float)inputMillivolts * rollMotorPower);
@@ -65,10 +75,11 @@ void loop(){
   
   MoveMotorPosSpeed(pitchMotorNumber, pitchPIDOutput,pitchMotorPower);
   MoveMotorPosSpeed(rollMotorNumber, rollPIDOutput,rollMotorPower);
- 
+
+  
+
   if(subTick % SUBTICK_FREQ == (SUBTICK_FREQ-1)){
     inputMillivolts = analogRead(A0) * BATT_INPUT_ADC_TO_MILLI_VOLTS;
-
     if(outputAngle){
       Serial.print("PRA ");
       Serial.print(pitchAngle);
@@ -76,6 +87,7 @@ void loop(){
       Serial.println(rollAngle);
       subTick = 0;
     }
+
   }
   subTick++;
 }
@@ -86,7 +98,7 @@ int32_t ComputePID(int32_t DTms, int32_t DTinv, int32_t in, int32_t setPoint, in
    
   Ierr = error * Ki * DTms;
 
-  Ierr = constrain_int32(Ierr, -(int32_t)500000, (int32_t)500000);
+  Ierr = constrain_int32(Ierr, -(int32_t)1000000, (int32_t)1000000);
 
   *errorSum += Ierr;
  
@@ -107,8 +119,4 @@ inline int32_t constrain_int32(int32_t x , int32_t l, int32_t h){
   } else {
     return x;
   }
-}
-
-void pin7Changed(){
-  Serial.println("Changed");
 }
